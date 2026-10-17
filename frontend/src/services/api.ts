@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
-import { DocumentItem, ChatMessage, CitationSource } from '@/types';
+import { DocumentItem, ChatMessage, CitationSource, StructuredInvoice, InvoiceAuditResult } from '@/types';
 
 // Determine default host:
 // 1. Check EXPO_PUBLIC_API_URL
@@ -462,6 +462,77 @@ export async function generateVoiceover(
  */
 export function getVoiceoverAudioUrl(text: string, voice: string = 'af_heart'): string {
   return `${API_BASE_URL}/api/tts/speak?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voice)}`;
+}
+
+export interface ProcessInvoiceResponse {
+  success: boolean;
+  doc_id: string;
+  file_name: string;
+  size: string;
+  elapsed_seconds: number;
+  raw_ocr_text: string;
+  structured_invoice: StructuredInvoice;
+  audit: InvoiceAuditResult;
+  whatsapp_draft: string;
+}
+
+/**
+ * Snaps/uploads a purchase bill to the MarginSense backend.
+ * Runs RapidOCR, structures all line items & GST in ₹ INR, runs profit leak detectors,
+ * and generates a supplier dispute draft.
+ */
+export async function processInvoiceWithOCR(
+  fileUri: string,
+  fileName: string = 'camera_bill.jpg',
+  mimeType: string = 'image/jpeg'
+): Promise<ProcessInvoiceResponse | null> {
+  try {
+    const endpoint = `${API_BASE_URL}/api/invoices/process-base64`;
+    let base64Data = '';
+
+    if (Platform.OS !== 'web' && FileSystem) {
+      base64Data = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: 'base64' as any,
+      });
+    } else {
+      const response = await fetch(fileUri);
+      const blob = await response.blob();
+      base64Data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const res = reader.result as string;
+          const b64 = res.includes(',') ? res.split(',')[1] : res;
+          resolve(b64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    console.log(`[MarginSense OCR] Submitting ${fileName} (${base64Data.length} b64 chars) to ${endpoint}...`);
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        file_name: fileName,
+        base64_data: base64Data,
+        source: 'camera',
+      }),
+    });
+
+    if (!res.ok) {
+      console.warn(`[MarginSense OCR] Processing failed with status ${res.status}`);
+      return null;
+    }
+
+    const data: ProcessInvoiceResponse = await res.json();
+    console.log(`[MarginSense OCR] Processed successfully in ${data.elapsed_seconds}s! Supplier: ${data.structured_invoice.supplier_name}`);
+    return data;
+  } catch (err) {
+    console.warn('[MarginSense OCR] Error processing invoice:', err);
+    return null;
+  }
 }
 
 

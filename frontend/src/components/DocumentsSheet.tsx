@@ -27,6 +27,9 @@ interface DocumentsSheetProps {
   onClearDocumentSelection?: () => void;
   onUploadPress: () => void;
   onUploadImagesPress?: () => void;
+  onSnapCameraPress?: () => void;
+  onImportSharePress?: () => void;
+  onOpenInvoiceAudit?: (doc: DocumentItem) => void;
   isUploading: boolean;
   uploadProgress: number;
   uploadingDocName: string | null;
@@ -48,6 +51,9 @@ export function DocumentsSheet({
   onClearDocumentSelection,
   onUploadPress,
   onUploadImagesPress,
+  onSnapCameraPress,
+  onImportSharePress,
+  onOpenInvoiceAudit,
   isUploading,
   uploadProgress,
   uploadingDocName,
@@ -165,26 +171,80 @@ export function DocumentsSheet({
             showsVerticalScrollIndicator={false}
           >
             {/* Upload Area: Dual multi-format actions */}
+            {/* Camera Snap Hero & Dual Import Cards */}
             <View style={styles.uploadCardsContainer}>
-              <Pressable
-                onPress={onUploadPress}
-                disabled={isUploading}
-                style={({ pressed }) => [
-                  styles.uploadArea,
-                  pressed && styles.uploadAreaPressed,
-                  isUploading && styles.uploadAreaDisabled,
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel="Upload files"
-              >
-                <View style={styles.uploadIconContainer}>
-                  <Ionicons name="document-attach" size={20} color={Colors.primaryCyan} />
-                </View>
-                <View style={styles.uploadTextContainer}>
-                  <Text style={styles.uploadTitle}>+ Upload Invoice / Bill</Text>
-                  <Text style={styles.uploadSubtitle}>PDF • WhatsApp Screenshot • Image</Text>
-                </View>
-              </Pressable>
+              {/* Primary: Camera Snap for Physical Purchase Bills */}
+              {onSnapCameraPress && (
+                <Pressable
+                  onPress={onSnapCameraPress}
+                  disabled={isUploading}
+                  style={({ pressed }) => [
+                    styles.cameraHeroCard,
+                    pressed && styles.uploadAreaPressed,
+                    isUploading && styles.uploadAreaDisabled,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Snap purchase bill with camera"
+                >
+                  <View style={styles.cameraHeroIcon}>
+                    <Ionicons name="camera" size={24} color="#080C08" />
+                  </View>
+                  <View style={styles.cameraHeroText}>
+                    <View style={styles.cameraTitleRow}>
+                      <Text style={styles.cameraHeroTitle}>Snap Bill with Camera</Text>
+                      <View style={styles.instantBadge}>
+                        <Text style={styles.instantBadgeText}>Instant RapidOCR</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.cameraHeroSubtitle}>
+                      Snap physical shop purchase bill • Auto-detect profit leaks in ₹ INR
+                    </Text>
+                  </View>
+                </Pressable>
+              )}
+
+              {/* Secondary: Import WhatsApp / Gmail Bill */}
+              <View style={styles.dualImportRow}>
+                <Pressable
+                  onPress={onImportSharePress || onUploadPress}
+                  disabled={isUploading}
+                  style={({ pressed }) => [
+                    styles.shareImportCard,
+                    pressed && styles.uploadAreaPressed,
+                    isUploading && styles.uploadAreaDisabled,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Import from WhatsApp or Gmail"
+                >
+                  <View style={styles.shareIconCircle}>
+                    <Ionicons name="logo-whatsapp" size={18} color="#22C55E" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.shareCardTitle}>WhatsApp / Gmail</Text>
+                    <Text style={styles.shareCardSub}>Import shared PDF / photo</Text>
+                  </View>
+                </Pressable>
+
+                <Pressable
+                  onPress={onUploadPress}
+                  disabled={isUploading}
+                  style={({ pressed }) => [
+                    styles.fileImportCard,
+                    pressed && styles.uploadAreaPressed,
+                    isUploading && styles.uploadAreaDisabled,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Upload file from device"
+                >
+                  <View style={styles.fileIconCircle}>
+                    <Ionicons name="document-attach" size={18} color={Colors.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.fileCardTitle}>Browse Files</Text>
+                    <Text style={styles.fileCardSub}>PDF • Image • Excel</Text>
+                  </View>
+                </Pressable>
+              </View>
 
               {onUploadImagesPress && (
                 <Pressable
@@ -199,11 +259,11 @@ export function DocumentsSheet({
                   accessibilityLabel="Upload photos with multi-select"
                 >
                   <View style={styles.uploadIconContainerPhoto}>
-                    <Ionicons name="images" size={20} color="#38BDF8" />
+                    <Ionicons name="images" size={18} color="#4ADE80" />
                   </View>
                   <View style={styles.uploadTextContainer}>
-                    <Text style={styles.uploadTitlePhoto}>+ Multi-Select Photos / Scans</Text>
-                    <Text style={styles.uploadSubtitle}>Select multiple images from gallery</Text>
+                    <Text style={styles.uploadTitlePhoto}>+ Multi-Select Scans from Gallery</Text>
+                    <Text style={styles.uploadSubtitle}>Batch import bill photos</Text>
                   </View>
                 </Pressable>
               )}
@@ -352,6 +412,7 @@ export function DocumentsSheet({
                     document={doc}
                     isSelected={isSelected}
                     onSelect={handleDocumentTap}
+                    onOpenAudit={onOpenInvoiceAudit}
                   />
                 );
               })}
@@ -810,5 +871,119 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
+  },
+  cameraHeroCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(34, 197, 94, 0.45)',
+    borderRadius: 14,
+    padding: 14,
+    gap: 12,
+  },
+  cameraHeroIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cameraHeroText: {
+    flex: 1,
+  },
+  cameraTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cameraHeroTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  instantBadge: {
+    backgroundColor: 'rgba(34, 197, 94, 0.25)',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.4)',
+  },
+  instantBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: Colors.primary,
+    letterSpacing: 0.4,
+  },
+  cameraHeroSubtitle: {
+    fontSize: 11,
+    color: Colors.textMuted,
+    marginTop: 3,
+    lineHeight: 15,
+  },
+  dualImportRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 2,
+  },
+  shareImportCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#101A10',
+    borderWidth: 1,
+    borderColor: 'rgba(37, 211, 102, 0.3)',
+    borderRadius: 12,
+    padding: 10,
+    gap: 8,
+  },
+  shareIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(37, 211, 102, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareCardTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#E0E7E0',
+  },
+  shareCardSub: {
+    fontSize: 10,
+    color: Colors.textMuted,
+    marginTop: 1,
+  },
+  fileImportCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#101A10',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderRadius: 12,
+    padding: 10,
+    gap: 8,
+  },
+  fileIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fileCardTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#E0E7E0',
+  },
+  fileCardSub: {
+    fontSize: 10,
+    color: Colors.textMuted,
+    marginTop: 1,
   },
 });

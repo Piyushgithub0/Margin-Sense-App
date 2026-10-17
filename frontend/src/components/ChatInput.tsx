@@ -20,6 +20,7 @@ interface ChatInputProps {
   onClearContext?: () => void;
   onRemoveDocument?: (doc: DocumentItem | string) => void;
   onOpenDocumentsSheet?: () => void;
+  onSnapCameraPress?: () => void;
 }
 
 export function ChatInput({
@@ -30,6 +31,7 @@ export function ChatInput({
   onClearContext,
   onRemoveDocument,
   onOpenDocumentsSheet,
+  onSnapCameraPress,
 }: ChatInputProps) {
   const [text, setText] = useState('');
 
@@ -159,6 +161,18 @@ export function ChatInput({
 
       {/* Main input container */}
       <View style={styles.inputBox}>
+        {onSnapCameraPress && (
+          <Pressable
+            onPress={onSnapCameraPress}
+            style={({ pressed }) => [styles.cameraBtn, pressed && styles.cameraBtnPressed]}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel="Snap purchase bill with camera"
+          >
+            <Ionicons name="camera" size={20} color={Colors.primary} />
+          </Pressable>
+        )}
+
         <TextInput
           style={styles.textInput}
           placeholder={placeholderText}
@@ -366,6 +380,21 @@ const styles = StyleSheet.create({
   },
   sendButtonPressed: {
     opacity: 0.8,
+  },
+  cameraBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
+  cameraBtnPressed: {
+    opacity: 0.6,
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
   },
   helperText: {
     fontFamily: Fonts.sans,

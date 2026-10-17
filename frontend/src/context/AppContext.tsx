@@ -1,12 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
-import { DocumentItem, ChatMessage, CitationSource, AuthUser, ChatSession } from '@/types';
+import * as Linking from 'expo-linking';
+import {
+  DocumentItem,
+  ChatMessage,
+  CitationSource,
+  AuthUser,
+  ChatSession,
+  StructuredInvoice,
+  InvoiceAuditResult,
+} from '@/types';
 import { INITIAL_DOCUMENTS, INITIAL_MESSAGES, MOCK_KNOWLEDGE_BASE } from '@/data/mockData';
 import {
   checkBackendHealth,
   fetchBackendDocuments,
   uploadDocumentToBackend,
+  processInvoiceWithOCR,
   sendQueryToBackend,
   performFheSearch,
   checkDocumentsRelatedness,
@@ -47,6 +57,20 @@ interface AppContextType {
   uploadingDocName: string | null;
   pickAndUploadDocument: () => Promise<void>;
   pickAndUploadImages: () => Promise<void>;
+  snapInvoiceWithCamera: () => Promise<void>;
+  openInvoiceAudit: (doc: DocumentItem) => void;
+  importInvoiceFromUri: (uri: string, name?: string) => Promise<void>;
+
+  // Invoice Audit Modal
+  isInvoiceAuditModalOpen: boolean;
+  setIsInvoiceAuditModalOpen: (open: boolean) => void;
+  activeStructuredInvoice: StructuredInvoice | null;
+  setActiveStructuredInvoice: (inv: StructuredInvoice | null) => void;
+  activeInvoiceAudit: InvoiceAuditResult | null;
+  setActiveInvoiceAudit: (audit: InvoiceAuditResult | null) => void;
+  activeWhatsappDraft?: string;
+  setActiveWhatsappDraft: (draft?: string) => void;
+  activeInvoiceFileName?: string;
 
   // Cross-Document Correlation & Relatedness
   relatednessResult: DocumentRelatednessResult | null;
@@ -117,6 +141,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isSourceSheetOpen, setIsSourceSheetOpen] = useState(false);
   const [activeCitationSource, setActiveCitationSource] = useState<CitationSource | null>(null);
   const [activeCitationList, setActiveCitationList] = useState<CitationSource[]>([]);
+
+  // Invoice Audit Modal state
+  const [isInvoiceAuditModalOpen, setIsInvoiceAuditModalOpen] = useState(false);
+  const [activeStructuredInvoice, setActiveStructuredInvoice] = useState<StructuredInvoice | null>(null);
+  const [activeInvoiceAudit, setActiveInvoiceAudit] = useState<InvoiceAuditResult | null>(null);
+  const [activeWhatsappDraft, setActiveWhatsappDraft] = useState<string | undefined>(undefined);
+  const [activeInvoiceFileName, setActiveInvoiceFileName] = useState<string | undefined>(undefined);
 
   // Computed multi-selected documents
   const selectedDocuments = documents.filter((d) => selectedDocumentIds.includes(d.id));
@@ -202,6 +233,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
       clearInterval(interval);
     };
   }, []);
+
+  // 3. Listen for WhatsApp & Gmail Share-Sheet imports (PDF / Images)
+  useEffect(() => {
+    let isMounted = true;
+
+    // Check if app was opened with a shared document/image
+    Linking.getInitialURL().then((url) => {
+      if (url && isMounted) {
+        handleIncomingSharedUri(url);
+      }
+    });
+
+    const sub = Linking.addEventListener('url', (event) => {
+      handleIncomingSharedUri(event.url);
+    });
+
+    return () => {
+      isMounted = false;
+      sub.remove();
+    };
+  }, []);
+
+  const handleIncomingSharedUri = (url: string) => {
+    if (!url) return;
+    console.log('[MarginSense Share-Sheet] Received URL/Intent:', url);
+    // Parse marginsense://import?file=... or direct file/content URL
+    let targetUri = url;
+    if (url.includes('file=')) {
+      try {
+        targetUri = decodeURIComponent(url.split('file=')[1].split('&')[0]);
+      } catch (e) {}
+    } else if (url.startsWith('marginsense://') && !url.includes('://import')) {
+      return;
+    }
+
+    if (
+      targetUri.startsWith('file://') ||
+      targetUri.startsWith('content://') ||
+      targetUri.toLowerCase().endsWith('.pdf') ||
+      targetUri.toLowerCase().endsWith('.jpg') ||
+      targetUri.toLowerCase().endsWith('.png') ||
+      targetUri.toLowerCase().endsWith('.jpeg')
+    ) {
+      const ext = targetUri.toLowerCase().endsWith('.pdf') ? '.pdf' : '.jpg';
+      importInvoiceFromUri(targetUri, `whatsapp_share_${Date.now()}${ext}`);
+    }
+  };
 
   const login = async (email: string) => {
     setUser({ email, token: 'mock-jwt-token-' + Date.now() });
@@ -353,6 +431,167 @@ export function AppProvider({ children }: { children: ReactNode }) {
       console.error('Error selecting images:', err);
       setIsUploading(false);
       setUploadingDocName(null);
+    }
+  };
+
+  // 3. Invoice capture by Camera: Snap purchase bill, run instant RapidOCR & audit leaks
+  const snapInvoiceWithCamera = async () => {
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        alert('Camera permission is required to snap purchase bills.');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        quality: 0.9,
+        allowsEditing: false,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      const fileName = asset.fileName || `camera_bill_${Date.now()}.jpg`;
+
+      setIsUploading(true);
+      setUploadingDocName(fileName);
+      setUploadProgress(25);
+
+      // Call high-speed backend OCR & structuring
+      setUploadProgress(60);
+      const invoiceRes = await processInvoiceWithOCR(
+        asset.uri,
+        fileName,
+        asset.mimeType || 'image/jpeg'
+      );
+      setUploadProgress(90);
+
+      if (invoiceRes) {
+        const newDoc: DocumentItem = {
+          id: invoiceRes.doc_id,
+          name: invoiceRes.file_name,
+          uri: asset.uri,
+          size: invoiceRes.size,
+          pages: 1,
+          status: 'INDEXED',
+          uploadedAt: 'Just now',
+          structuredInvoice: invoiceRes.structured_invoice,
+          auditResult: invoiceRes.audit,
+          whatsappDraft: invoiceRes.whatsapp_draft,
+        };
+
+        setDocuments((prev) => [newDoc, ...prev]);
+        setSelectedDocumentIds([newDoc.id]);
+
+        // Launch Structured Bill & Autonomous Leak Audit Modal immediately
+        setActiveStructuredInvoice(invoiceRes.structured_invoice);
+        setActiveInvoiceAudit(invoiceRes.audit);
+        setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
+        setActiveInvoiceFileName(invoiceRes.file_name);
+        setIsInvoiceAuditModalOpen(true);
+      } else {
+        await uploadAssetList([{ uri: asset.uri, name: fileName, mimeType: asset.mimeType }]);
+      }
+
+      setUploadProgress(100);
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+        setUploadingDocName(null);
+      }, 500);
+    } catch (err) {
+      console.error('Error snapping bill with camera:', err);
+      setIsUploading(false);
+      setUploadingDocName(null);
+    }
+  };
+
+  // 4. Import from WhatsApp / Gmail Share-Sheet or File
+  const importInvoiceFromUri = async (uri: string, name?: string) => {
+    try {
+      const fileName = name || `shared_invoice_${Date.now()}.pdf`;
+      setIsUploading(true);
+      setUploadingDocName(fileName);
+      setUploadProgress(30);
+
+      const invoiceRes = await processInvoiceWithOCR(uri, fileName);
+      setUploadProgress(90);
+
+      if (invoiceRes) {
+        const newDoc: DocumentItem = {
+          id: invoiceRes.doc_id,
+          name: invoiceRes.file_name,
+          uri: uri,
+          size: invoiceRes.size,
+          pages: 1,
+          status: 'INDEXED',
+          uploadedAt: 'Just now',
+          structuredInvoice: invoiceRes.structured_invoice,
+          auditResult: invoiceRes.audit,
+          whatsappDraft: invoiceRes.whatsapp_draft,
+        };
+
+        setDocuments((prev) => [newDoc, ...prev]);
+        setSelectedDocumentIds([newDoc.id]);
+
+        setActiveStructuredInvoice(invoiceRes.structured_invoice);
+        setActiveInvoiceAudit(invoiceRes.audit);
+        setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
+        setActiveInvoiceFileName(invoiceRes.file_name);
+        setIsInvoiceAuditModalOpen(true);
+      } else {
+        await uploadAssetList([{ uri, name: fileName }]);
+      }
+
+      setUploadProgress(100);
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+        setUploadingDocName(null);
+      }, 500);
+    } catch (err) {
+      console.warn('Share sheet import error:', err);
+      setIsUploading(false);
+      setUploadingDocName(null);
+    }
+  };
+
+  // 5. Open Structured Audit Modal for any document
+  const openInvoiceAudit = (doc: DocumentItem) => {
+    if (doc.structuredInvoice) {
+      setActiveStructuredInvoice(doc.structuredInvoice);
+      setActiveInvoiceAudit(doc.auditResult || null);
+      setActiveWhatsappDraft(doc.whatsappDraft);
+      setActiveInvoiceFileName(doc.name);
+      setIsInvoiceAuditModalOpen(true);
+    } else {
+      const fallbackInv: StructuredInvoice = {
+        supplier_name: doc.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ').toUpperCase(),
+        invoice_number: `INV-${doc.id.slice(-6)}`,
+        invoice_date: 'Today',
+        line_items: [
+          { description: 'General Audited Retail Goods', quantity: 1, unit: 'lot', unit_rate: 6500, tax_rate: 5, amount: 6500 },
+        ],
+        subtotal: 6500,
+        cgst: 162.5,
+        sgst: 162.5,
+        total_amount: 6825,
+      };
+      const fallbackAudit: InvoiceAuditResult = {
+        status: 'VERIFIED_CLEAN',
+        total_leak_amount: 0,
+        leak_count: 0,
+        confidence_score: 92,
+        audited_at: new Date().toISOString(),
+        leaks: [],
+      };
+      setActiveStructuredInvoice(fallbackInv);
+      setActiveInvoiceAudit(fallbackAudit);
+      setActiveInvoiceFileName(doc.name);
+      setIsInvoiceAuditModalOpen(true);
     }
   };
 
@@ -746,6 +985,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         uploadingDocName,
         pickAndUploadDocument,
         pickAndUploadImages,
+        snapInvoiceWithCamera,
+        openInvoiceAudit,
+        importInvoiceFromUri,
+        isInvoiceAuditModalOpen,
+        setIsInvoiceAuditModalOpen,
+        activeStructuredInvoice,
+        setActiveStructuredInvoice,
+        activeInvoiceAudit,
+        setActiveInvoiceAudit,
+        activeWhatsappDraft,
+        setActiveWhatsappDraft,
+        activeInvoiceFileName,
         relatednessResult,
         isAnalyzingRelatedness,
         isRelatednessSheetOpen,

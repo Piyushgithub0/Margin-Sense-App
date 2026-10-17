@@ -32,6 +32,7 @@ import { SourceSheet } from '@/components/SourceSheet';
 import { DocumentsSheet } from '@/components/DocumentsSheet';
 import { ChatsSheet } from '@/components/ChatsSheet';
 import { RelatednessSheet } from '@/components/RelatednessSheet';
+import { InvoiceAuditModal } from '@/components/InvoiceAuditModal';
 import { CitationSource } from '@/types';
 
 export default function MainAppScreen() {
@@ -79,6 +80,15 @@ export default function MainAppScreen() {
     isSourceSheetOpen,
     openSourceSheet,
     closeSourceSheet,
+    snapInvoiceWithCamera,
+    openInvoiceAudit,
+    importInvoiceFromUri,
+    isInvoiceAuditModalOpen,
+    setIsInvoiceAuditModalOpen,
+    activeStructuredInvoice,
+    activeInvoiceAudit,
+    activeWhatsappDraft,
+    activeInvoiceFileName,
   } = useApp();
 
   // Scroll to bottom when messages update or generating
@@ -169,6 +179,19 @@ export default function MainAppScreen() {
               />
             }
             accessibilityLabel="Check cross-document relatedness"
+          />
+
+          {/* Quick Camera Snap Bill Button */}
+          <IconButton
+            onPress={snapInvoiceWithCamera}
+            icon={
+              <Ionicons
+                name="camera-outline"
+                size={18}
+                color={Colors.primary}
+              />
+            }
+            accessibilityLabel="Snap purchase bill with camera"
           />
 
           {/* Documents Drawer Button */}
@@ -374,18 +397,28 @@ export default function MainAppScreen() {
                 </View>
               )}
 
-              <Pressable
-                onPress={() => setIsDocumentsSheetOpen(true)}
-                style={styles.emptyUploadButton}
-              >
-                <Text style={styles.emptyUploadText}>
-                  {selectedDocuments.length > 1
-                    ? `Manage Invoices (${selectedDocuments.length} Selected)`
-                    : selectedDocument
-                    ? 'Switch Invoice'
-                    : '+ Upload Invoice / Bill'}
-                </Text>
-              </Pressable>
+              <View style={styles.emptyActionRow}>
+                <Pressable
+                  onPress={snapInvoiceWithCamera}
+                  style={styles.emptySnapButton}
+                >
+                  <Ionicons name="camera" size={17} color="#080C08" />
+                  <Text style={styles.emptySnapText}>Snap Bill with Camera</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setIsDocumentsSheetOpen(true)}
+                  style={styles.emptyUploadButton}
+                >
+                  <Text style={styles.emptyUploadText}>
+                    {selectedDocuments.length > 1
+                      ? `Invoices (${selectedDocuments.length})`
+                      : selectedDocument
+                      ? 'Switch Bill'
+                      : '+ Invoice Vault'}
+                  </Text>
+                </Pressable>
+              </View>
 
               {/* Suggested Prompts */}
               <View style={styles.suggestedPromptsContainer}>
@@ -440,6 +473,7 @@ export default function MainAppScreen() {
             onClearContext={clearDocumentSelection}
             onRemoveDocument={toggleDocumentSelection}
             onOpenDocumentsSheet={() => setIsDocumentsSheetOpen(true)}
+            onSnapCameraPress={snapInvoiceWithCamera}
           />
         </View>
       </KeyboardAvoidingView>
@@ -479,6 +513,9 @@ export default function MainAppScreen() {
         onClearDocumentSelection={clearDocumentSelection}
         onUploadPress={pickAndUploadDocument}
         onUploadImagesPress={pickAndUploadImages}
+        onSnapCameraPress={snapInvoiceWithCamera}
+        onImportSharePress={pickAndUploadDocument}
+        onOpenInvoiceAudit={openInvoiceAudit}
         isUploading={isUploading}
         uploadProgress={uploadProgress}
         uploadingDocName={uploadingDocName}
@@ -496,6 +533,19 @@ export default function MainAppScreen() {
         loading={isAnalyzingRelatedness}
         onRefresh={() => analyzeRelatedness()}
         onSelectQueryContext={(prompt) => sendMessage(prompt)}
+      />
+
+      {/* Structured Invoice & Leak Audit Modal */}
+      <InvoiceAuditModal
+        visible={isInvoiceAuditModalOpen}
+        onClose={() => setIsInvoiceAuditModalOpen(false)}
+        invoice={activeStructuredInvoice}
+        audit={activeInvoiceAudit}
+        whatsappDraft={activeWhatsappDraft}
+        fileName={activeInvoiceFileName}
+        onStartAuditChat={(inv) => {
+          sendMessage(`Audit summary for ${inv.supplier_name}: What are the exact leaks and root causes identified in bill #${inv.invoice_number}?`);
+        }}
       />
     </SafeAreaView>
   );
@@ -638,14 +688,36 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: 20,
   },
+  emptyActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  emptySnapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+  },
+  emptySnapText: {
+    fontFamily: Fonts.mono,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#080C08',
+  },
   emptyUploadButton: {
     backgroundColor: 'rgba(34, 197, 94, 0.12)',
     borderWidth: 1,
     borderColor: Colors.borderCyan,
-    borderRadius: 6,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 24,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
   emptyUploadText: {
     fontFamily: Fonts.mono,

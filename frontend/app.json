@@ -8,7 +8,18 @@
     "scheme": "marginsense",
     "userInterfaceStyle": "dark",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSCameraUsageDescription": "MarginSense AI needs camera access to snap purchase bills and invoices in your shop for instant OCR and autonomous audit.",
+        "NSPhotoLibraryUsageDescription": "MarginSense AI needs photo access to import invoice scans from your gallery.",
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "PDF Document",
+            "LSItemContentTypes": ["com.adobe.pdf", "public.image"],
+            "LSHandlerRank": "Alternate"
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +28,32 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "intentFilters": [
+        {
+          "action": "SEND",
+          "category": ["DEFAULT"],
+          "data": [
+            { "mimeType": "application/pdf" },
+            { "mimeType": "image/*" },
+            { "mimeType": "text/plain" }
+          ]
+        },
+        {
+          "action": "VIEW",
+          "category": ["DEFAULT", "BROWSABLE"],
+          "data": [
+            { "scheme": "marginsense" },
+            { "mimeType": "application/pdf" },
+            { "mimeType": "image/*" }
+          ]
+        }
+      ]
     },
     "web": {
       "output": "static",
