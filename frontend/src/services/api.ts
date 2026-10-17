@@ -610,15 +610,28 @@ export async function sendDisputeEmail(
   }
 }
 
+export interface GoogleAuthUrlResponse {
+  authUrl: string;
+  redirectUri: string;
+  clientId: string;
+}
+
 /**
  * Retrieves Google OAuth authorization URL.
  */
-export async function getGoogleAuthUrl(): Promise<string | null> {
+export async function getGoogleAuthUrl(customRedirectUri?: string): Promise<GoogleAuthUrlResponse | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/gmail/auth-url`);
+    const url = customRedirectUri
+      ? `${API_BASE_URL}/api/gmail/auth-url?redirect_uri=${encodeURIComponent(customRedirectUri)}`
+      : `${API_BASE_URL}/api/gmail/auth-url`;
+    const res = await fetch(url);
     if (!res.ok) return null;
     const data = await res.json();
-    return data.auth_url;
+    return {
+      authUrl: data.auth_url,
+      redirectUri: data.redirect_uri || 'http://localhost:8000/api/gmail/oauth2callback',
+      clientId: data.client_id || '',
+    };
   } catch (err) {
     console.warn('[MarginSense Gmail] Failed to get auth URL:', err);
     return null;

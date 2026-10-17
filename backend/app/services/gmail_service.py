@@ -242,12 +242,13 @@ def audit_specific_email(email_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
-def get_google_auth_url() -> str:
+def get_google_auth_url(redirect_uri: Optional[str] = None) -> str:
     """Builds standard Google OAuth2 URL using client credentials."""
     base_url = "https://accounts.google.com/o/oauth2/v2/auth"
+    actual_redirect = redirect_uri or settings.GOOGLE_REDIRECT_URI
     params = {
         "client_id": settings.GOOGLE_CLIENT_ID,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "redirect_uri": actual_redirect,
         "response_type": "code",
         "scope": (
             "https://www.googleapis.com/auth/gmail.readonly "
@@ -260,14 +261,15 @@ def get_google_auth_url() -> str:
     return f"{base_url}?{urllib.parse.urlencode(params)}"
 
 
-async def exchange_google_code(code: str) -> Dict[str, Any]:
+async def exchange_google_code(code: str, redirect_uri: Optional[str] = None) -> Dict[str, Any]:
     """Exchanges Google OAuth authorization code for access and refresh tokens."""
     token_url = "https://oauth2.googleapis.com/token"
+    actual_redirect = redirect_uri or settings.GOOGLE_REDIRECT_URI
     payload = {
         "code": code,
         "client_id": settings.GOOGLE_CLIENT_ID,
         "client_secret": settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "redirect_uri": actual_redirect,
         "grant_type": "authorization_code",
     }
     async with httpx.AsyncClient(timeout=10.0) as client:

@@ -26,23 +26,55 @@ class AnalyseEmailRequest(BaseModel):
     email_id: str
 
 
+from fastapi.responses import HTMLResponse
+from app.config import settings
+
 @router.get("/auth-url")
-def get_auth_url_endpoint():
+def get_auth_url_endpoint(redirect_uri: Optional[str] = Query(None)):
     """Returns Google OAuth2 authorization URL configured with GOOGLE_CLIENT_ID."""
-    url = get_google_auth_url()
-    return {"auth_url": url}
+    actual_redirect = redirect_uri or settings.GOOGLE_REDIRECT_URI
+    url = get_google_auth_url(redirect_uri=actual_redirect)
+    return {
+        "auth_url": url,
+        "redirect_uri": actual_redirect,
+        "client_id": settings.GOOGLE_CLIENT_ID,
+    }
 
 
-@router.get("/oauth2callback")
-async def oauth2_callback_endpoint(code: str = Query(...)):
+@router.get("/oauth2callback", response_class=HTMLResponse)
+async def oauth2_callback_endpoint(code: str = Query(...), state: Optional[str] = Query(None)):
     """OAuth2 callback handler to exchange authorization code for tokens."""
     res = await exchange_google_code(code)
     if not res.get("success"):
-        raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
-    return {
-        "status": "connected",
-        "message": "Google Account linked successfully to MarginSense AI!"
-    }
+        return HTMLResponse(
+            status_code=400,
+            content="""
+            <html>
+            <body style="font-family: sans-serif; background: #0A0F1D; color: #FFF; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+                <div style="background: #111827; padding: 32px; border-radius: 16px; border: 1px solid #EF4444; text-align: center; max-width: 400px;">
+                    <h2 style="color: #EF4444; margin-top: 0;">Authentication Failed</h2>
+                    <p style="color: #9CA3AF; font-size: 14px;">Could not exchange code with Google OAuth servers. Check client credentials in backend.</p>
+                </div>
+            </body>
+            </html>
+            """
+        )
+    return HTMLResponse(
+        content="""
+        <html>
+        <body style="font-family: sans-serif; background: #0A0F1D; color: #FFF; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+            <div style="background: #111827; padding: 32px; border-radius: 16px; border: 1px solid #22C55E; text-align: center; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                <div style="font-size: 48px; margin-bottom: 12px;">✅</div>
+                <h2 style="color: #22C55E; margin: 0 0 8px;">Google Linked!</h2>
+                <p style="color: #D1D5DB; font-size: 15px; margin-bottom: 20px;">
+                    MarginSense AI has connected to your Google account for autonomous invoice auditing & Gmail dispute dispatches.
+                </p>
+                <p style="color: #9CA3AF; font-size: 13px;">You can now close this tab and return to the app.</p>
+            </div>
+        </body>
+        </html>
+        """
+    )
 
 
 @router.get("/inbox")

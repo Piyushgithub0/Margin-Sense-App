@@ -67,30 +67,31 @@ export function GmailInboxSheet({ visible, onClose }: GmailInboxSheetProps) {
   };
 
   const handleConnectGoogle = async () => {
-    Alert.alert(
-      'Google Account Sync',
-      'Connect your Google Workspace or Gmail account to sync supplier invoices and dispatch dispute notices via Google SMTP.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Connect via Browser',
-          onPress: async () => {
-            try {
-              const authUrl = await getGoogleAuthUrl();
-              if (authUrl) {
-                Linking.openURL(authUrl).catch(() => {
-                  Alert.alert('Notice', 'Could not open browser. Inbox is synchronized via Google SMTP bridge.');
-                });
-              } else {
-                Alert.alert('Notice', 'Inbox is already synchronized via Google SMTP bridge.');
-              }
-            } catch {
-              Alert.alert('Notice', 'Inbox is synchronized via Google SMTP bridge.');
-            }
+    try {
+      const authData = await getGoogleAuthUrl();
+      if (!authData || !authData.authUrl) {
+        Alert.alert('Google Sync', 'Inbox is already actively synchronized via Google SMTP bridge.');
+        return;
+      }
+
+      Alert.alert(
+        'Google OAuth Sync',
+        `Google requires this Redirect URI to be authorized in your Google Cloud Console:\n\n${authData.redirectUri}\n\nTap "Open Sign-In" to authenticate your account.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Open Sign-In',
+            onPress: () => {
+              Linking.openURL(authData.authUrl).catch(() => {
+                Alert.alert('Notice', 'Could not open browser. Inbox is synchronized via Google SMTP bridge.');
+              });
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    } catch {
+      Alert.alert('Notice', 'Inbox is synchronized via Google SMTP bridge.');
+    }
   };
 
   const handleAnalyse = async (email: GmailInvoiceEmail) => {
