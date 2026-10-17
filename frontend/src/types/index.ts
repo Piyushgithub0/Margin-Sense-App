@@ -122,3 +122,29 @@ export interface AuthUser {
   email: string;
   token: string;
 }
+
+export interface GmailInvoiceEmail {
+  id: string;
+  thread_id: string;
+  sender_name: string;
+  sender_email: string;
+  subject: string;
+  snippet: string;
+  received_at: string;
+  timestamp: number;
+  is_new: boolean;
+  has_pdf: boolean;
+  attachment_name: string;
+  attachment_size: string;
+  invoice_raw_text?: string;
+  analysis_status: 'PENDING' | 'AUDITED' | 'UNAUDITED';
+  dispute_sent: boolean;
+  structured_invoice?: StructuredInvoice;
+  audit_result?: InvoiceAuditResult;
+  whatsapp_draft?: string;
+  dispute_subject?: string;
+  dispute_body?: string;
+  disputed_amount?: number;
+  leak_count?: number;
+  audited_at?: string;
+}

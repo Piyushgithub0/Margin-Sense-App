@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
-import { DocumentItem, ChatMessage, CitationSource, StructuredInvoice, InvoiceAuditResult } from '@/types';
+import { DocumentItem, ChatMessage, CitationSource, StructuredInvoice, InvoiceAuditResult, GmailInvoiceEmail } from '@/types';
 
 // Determine default host:
 // 1. Check EXPO_PUBLIC_API_URL
@@ -540,5 +540,90 @@ export async function processInvoiceWithOCR(
     return null;
   }
 }
+
+export interface GmailInboxResponse {
+  success: boolean;
+  new_invoices_count: number;
+  total_leaks_at_risk: number;
+  inbox: GmailInvoiceEmail[];
+}
+
+/**
+ * Fetches recent supplier emails containing PDF invoices.
+ * Automatically audits newly received invoices (is_new=True).
+ */
+export async function fetchGmailInbox(): Promise<GmailInboxResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/gmail/inbox`);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.warn('[MarginSense Gmail] Failed to fetch inbox:', err);
+    return null;
+  }
+}
+
+/**
+ * Specifically triggers analysis on an older or un-audited invoice selected by user.
+ */
+export async function analyseGmailEmail(emailId: string): Promise<GmailInvoiceEmail | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/gmail/analyse`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email_id: emailId }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.email;
+  } catch (err) {
+    console.warn('[MarginSense Gmail] Failed to analyse email invoice:', err);
+    return null;
+  }
+}
+
+/**
+ * Sends dispute notice to supplier via Google SMTP / Gmail API.
+ */
+export async function sendDisputeEmail(
+  emailId: string | undefined,
+  toEmail: string,
+  subject: string,
+  body: string
+): Promise<{ success: boolean; provider?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/gmail/send-dispute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email_id: emailId,
+        to_email: toEmail,
+        subject,
+        body,
+      }),
+    });
+    if (!res.ok) return { success: false };
+    return await res.json();
+  } catch (err) {
+    console.warn('[MarginSense Gmail] Failed to send dispute email:', err);
+    return { success: false };
+  }
+}
+
+/**
+ * Retrieves Google OAuth authorization URL.
+ */
+export async function getGoogleAuthUrl(): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/gmail/auth-url`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.auth_url;
+  } catch (err) {
+    console.warn('[MarginSense Gmail] Failed to get auth URL:', err);
+    return null;
+  }
+}
+
 
 

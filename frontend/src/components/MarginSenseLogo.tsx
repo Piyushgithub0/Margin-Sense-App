@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   coinIcon: {
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: 'rgba(22, 163, 74, 0.1)',
     borderWidth: 1.5,
     borderColor: Colors.primary,
     justifyContent: 'center',
@@ -70,9 +70,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   barsRow: {
     flexDirection: 'row',
@@ -87,16 +87,17 @@ const styles = StyleSheet.create({
   },
   barTall: {
     opacity: 1,
-    shadowColor: Colors.primary,
+    backgroundColor: Colors.secondary,
+    shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
+    shadowOpacity: 0.5,
     shadowRadius: 3,
   },
   rupeeTag: {
     position: 'absolute',
     top: 2,
     left: 3,
-    opacity: 0.7,
+    opacity: 0.8,
   },
   rupeeChar: {
     fontFamily: Fonts.mono,
@@ -123,8 +124,8 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   aiText: {
-    color: Colors.textSecondary,
-    fontWeight: '400',
+    color: Colors.secondary,
+    fontWeight: '700',
   },
   tagline: {
     marginTop: 6,

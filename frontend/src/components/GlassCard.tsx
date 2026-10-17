@@ -34,11 +34,16 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.15)',
-    borderRadius: 10,
+    borderColor: Colors.borderSubtle,
+    borderRadius: 12,
     padding: 16,
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   accentCyan: {
     borderColor: Colors.borderCyan,

@@ -169,7 +169,7 @@ export function ChatInput({
             accessibilityRole="button"
             accessibilityLabel="Snap purchase bill with camera"
           >
-            <Ionicons name="camera" size={20} color={Colors.primary} />
+            <Ionicons name="camera" size={20} color={Colors.secondary} />
           </Pressable>
         )}
 
@@ -201,7 +201,7 @@ export function ChatInput({
           <Ionicons
             name="arrow-up"
             size={18}
-            color={isSendDisabled ? Colors.textMuted : '#0A0A0F'}
+            color={isSendDisabled ? Colors.textMuted : '#FFFFFF'}
           />
         </Pressable>
       </View>
@@ -251,9 +251,9 @@ const styles = StyleSheet.create({
   addMoreDocsBtn: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.borderSubtle,
     borderRadius: 6,
   },
   addMoreDocsText: {
@@ -263,9 +263,9 @@ const styles = StyleSheet.create({
   },
   multiContextBar: {
     marginBottom: 8,
-    backgroundColor: 'rgba(34, 197, 94, 0.04)',
+    backgroundColor: 'rgba(37, 99, 235, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: 'rgba(37, 99, 235, 0.25)',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingTop: 6,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.mono,
     fontSize: 11,
     fontWeight: '700',
-    color: Colors.primaryCyan,
+    color: Colors.secondary,
   },
   multiContextActions: {
     flexDirection: 'row',
@@ -296,13 +296,13 @@ const styles = StyleSheet.create({
   manageDocsBtn: {
     paddingHorizontal: 6,
     paddingVertical: 2,
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: 'rgba(37, 99, 235, 0.1)',
     borderRadius: 4,
   },
   manageDocsText: {
     fontFamily: Fonts.mono,
     fontSize: 10,
-    color: Colors.primaryCyan,
+    color: Colors.secondary,
     fontWeight: '600',
   },
   clearAllBtn: {
@@ -323,9 +323,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#F1F5F9',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#E2E8F0',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -343,15 +343,20 @@ const styles = StyleSheet.create({
   inputBox: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 6,
     minHeight: 46,
     maxHeight: 110,
     gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
   },
   textInput: {
     flex: 1,
@@ -365,18 +370,18 @@ const styles = StyleSheet.create({
   sendButton: {
     width: 32,
     height: 32,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: 8,
+    backgroundColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 2,
   },
   sendButtonActive: {
-    backgroundColor: Colors.primaryCyan,
-    shadowColor: Colors.primaryCyan,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   sendButtonPressed: {
     opacity: 0.8,
@@ -385,16 +390,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: 'rgba(37, 99, 235, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 2,
   },
   cameraBtnPressed: {
     opacity: 0.6,
-    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    backgroundColor: 'rgba(37, 99, 235, 0.16)',
   },
   helperText: {
     fontFamily: Fonts.sans,

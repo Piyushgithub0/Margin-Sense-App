@@ -55,15 +55,20 @@ export function LoadingDots() {
 
 const styles = StyleSheet.create({
   bubble: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
-    borderRadius: 8,
+    borderColor: Colors.borderSubtle,
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     alignSelf: 'flex-start',
     maxWidth: '85%',
     marginVertical: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -74,10 +79,10 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.secondaryPurple,
-    shadowColor: Colors.secondaryPurple,
+    backgroundColor: Colors.secondary,
+    shadowColor: Colors.secondary,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
   },
 });

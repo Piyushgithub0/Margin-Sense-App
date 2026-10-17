@@ -12,7 +12,7 @@ from app.db.sqlite_cache import (
     save_chunks
 )
 from app.rag.embeddings import embedding_service
-from app.routers import documents, chat, fhe, auth, tts, invoices
+from app.routers import documents, chat, fhe, auth, tts, invoices, gmail
 from app.auth.neon_users import ensure_users_table
 
 # Force UTF-8 output on Windows to prevent CP1252 UnicodeEncodeErrors
@@ -225,6 +225,7 @@ app.include_router(chat.router)
 app.include_router(fhe.router)
 app.include_router(tts.router)
 app.include_router(invoices.router)
+app.include_router(gmail.router)
 
 
 @app.get("/health", tags=["System"])

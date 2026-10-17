@@ -44,21 +44,21 @@ export function StatusBadge({ status, size = 'small' }: StatusBadgeProps) {
         };
       case 'OCR':
         return {
-          bg: 'rgba(34, 197, 94, 0.12)',
-          border: 'rgba(34, 197, 94, 0.35)',
+          bg: 'rgba(37, 99, 235, 0.08)',
+          border: 'rgba(37, 99, 235, 0.3)',
           color: Colors.statusOcr,
         };
       case 'PROCESSING':
         return {
-          bg: 'rgba(34, 197, 94, 0.12)',
-          border: 'rgba(34, 197, 94, 0.35)',
+          bg: 'rgba(22, 163, 74, 0.08)',
+          border: 'rgba(22, 163, 74, 0.3)',
           color: Colors.statusProcessing,
         };
       case 'INDEXED':
       default:
         return {
-          bg: 'rgba(34, 197, 94, 0.15)',
-          border: Colors.primaryCyan,
+          bg: 'rgba(22, 163, 74, 0.1)',
+          border: 'rgba(22, 163, 74, 0.4)',
           color: Colors.primaryCyan,
         };
     }

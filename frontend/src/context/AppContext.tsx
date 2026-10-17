@@ -13,6 +13,7 @@ import {
   InvoiceAuditResult,
   LeakAlert,
   DashboardKPI,
+  GmailInvoiceEmail,
 } from '@/types';
 import { INITIAL_DOCUMENTS, INITIAL_MESSAGES, MOCK_KNOWLEDGE_BASE } from '@/data/mockData';
 import {
@@ -24,6 +25,9 @@ import {
   performFheSearch,
   checkDocumentsRelatedness,
   DocumentRelatednessResult,
+  fetchGmailInbox,
+  analyseGmailEmail,
+  sendDisputeEmail,
 } from '@/services/api';
 import {
   getLocalChatSessions,
@@ -118,6 +122,16 @@ interface AppContextType {
   isSourceSheetOpen: boolean;
   openSourceSheet: (source: CitationSource, allCitationsInMessage?: CitationSource[]) => void;
   closeSourceSheet: () => void;
+  // Gmail & Google SMTP Inbox
+  gmailInbox: GmailInvoiceEmail[];
+  newGmailInvoicesCount: number;
+  isGmailInboxOpen: boolean;
+  setIsGmailInboxOpen: (open: boolean) => void;
+  loadGmailInbox: () => Promise<void>;
+  analyseEmailInvoice: (emailId: string) => Promise<void>;
+  sendEmailDispute: (emailId: string, toEmail: string, subject: string, body: string) => Promise<boolean>;
+  addEmailInvoiceToChat: (email: GmailInvoiceEmail) => void;
+
   runFheSearch: (query: string) => Promise<any>;
 }
 
@@ -171,6 +185,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Dashboard
   const [isDashboardSheetOpen, setIsDashboardSheetOpen] = useState(false);
   const [amountRecovered, setAmountRecovered] = useState(0);
+
+  // Gmail & Google SMTP Inbox
+  const [gmailInbox, setGmailInbox] = useState<GmailInvoiceEmail[]>([]);
+  const [newGmailInvoicesCount, setNewGmailInvoicesCount] = useState<number>(0);
+  const [isGmailInboxOpen, setIsGmailInboxOpen] = useState<boolean>(false);
 
   // Computed multi-selected documents
   const selectedDocuments = documents.filter((d) => selectedDocumentIds.includes(d.id));
@@ -799,7 +818,140 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // 6. Gmail & Google SMTP Inbox Integration
+  const loadGmailInbox = async () => {
+    try {
+      const data = await fetchGmailInbox();
+      if (data && data.inbox) {
+        setGmailInbox(data.inbox);
+        setNewGmailInvoicesCount(data.new_invoices_count || 0);
 
+        // Merge any new autonomously audited leaks into the leakAlerts feed
+        const newAudited = data.inbox.filter((m) => m.is_new && m.audit_result && m.audit_result.leak_count > 0);
+        if (newAudited.length > 0) {
+          const emailAlerts: LeakAlert[] = newAudited.flatMap((m) =>
+            (m.audit_result?.leaks || []).map((leak) => ({
+              id: `${m.id}-${leak.type}-${leak.title}`,
+              documentId: m.id,
+              documentName: m.attachment_name,
+              supplierName: m.sender_name,
+              invoiceNumber: m.structured_invoice?.invoice_number || undefined,
+              leakType: leak.type,
+              severity: leak.severity,
+              leakAmount: leak.leak_amount,
+              rootCause: leak.root_cause,
+              whatsappDraft: m.whatsapp_draft,
+              status: 'PENDING' as const,
+              detectedAt: m.audited_at || new Date().toISOString(),
+            }))
+          );
+          setLeakAlerts((prev) => [
+            ...emailAlerts,
+            ...prev.filter((a) => !emailAlerts.some((ea) => ea.id === a.id)),
+          ]);
+        }
+      }
+    } catch (err) {
+      console.warn('[AppContext] loadGmailInbox failed:', err);
+    }
+  };
+
+  const analyseEmailInvoice = async (emailId: string) => {
+    try {
+      const updated = await analyseGmailEmail(emailId);
+      if (updated) {
+        setGmailInbox((prev) => prev.map((m) => (m.id === emailId ? updated : m)));
+        if (updated.audit_result && updated.audit_result.leak_count > 0) {
+          const emailAlerts: LeakAlert[] = updated.audit_result.leaks.map((leak) => ({
+            id: `${updated.id}-${leak.type}-${leak.title}`,
+            documentId: updated.id,
+            documentName: updated.attachment_name,
+            supplierName: updated.sender_name,
+            invoiceNumber: updated.structured_invoice?.invoice_number || undefined,
+            leakType: leak.type,
+            severity: leak.severity,
+            leakAmount: leak.leak_amount,
+            rootCause: leak.root_cause,
+            whatsappDraft: updated.whatsapp_draft,
+            status: 'PENDING' as const,
+            detectedAt: updated.audited_at || new Date().toISOString(),
+          }));
+          setLeakAlerts((prev) => [
+            ...emailAlerts,
+            ...prev.filter((a) => !emailAlerts.some((ea) => ea.id === a.id)),
+          ]);
+        }
+      }
+    } catch (err) {
+      console.warn('[AppContext] analyseEmailInvoice error:', err);
+    }
+  };
+
+  const sendEmailDispute = async (
+    emailId: string,
+    toEmail: string,
+    subject: string,
+    body: string
+  ): Promise<boolean> => {
+    try {
+      const res = await sendDisputeEmail(emailId, toEmail, subject, body);
+      if (res.success) {
+        setGmailInbox((prev) =>
+          prev.map((m) => (m.id === emailId ? { ...m, dispute_sent: true } : m))
+        );
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.warn('[AppContext] sendEmailDispute error:', err);
+      return false;
+    }
+  };
+
+  const addEmailInvoiceToChat = (email: GmailInvoiceEmail) => {
+    const totalAmount = email.structured_invoice?.total_amount || 0;
+    const leakAmount = email.disputed_amount || 0;
+    const leakCount = email.leak_count || 0;
+
+    const summaryText =
+      `📄 **Imported Invoice from Gmail**: ${email.attachment_name}\n` +
+      `• **Supplier**: ${email.sender_name} (${email.sender_email})\n` +
+      `• **Subject**: ${email.subject}\n` +
+      `• **Billed Total**: ₹${totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}\n` +
+      (leakCount > 0
+        ? `⚠️ **Profit Leak Detected**: ₹${leakAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })} across ${leakCount} issue(s)\n` +
+          `• **Root Cause**: ${email.audit_result?.leaks?.[0]?.root_cause || 'Pricing discrepancy'}\n\n` +
+          `**Generated Supplier Dispute Message**:\n` +
+          `"${email.dispute_body ? email.dispute_body.slice(0, 240) + '...' : email.whatsapp_draft}"\n\n` +
+          `*Tap the Google SMTP Send button or ask me any question to analyze or counter this invoice.*`
+        : `✅ **Audit Status**: Clean invoice, no leaks detected.\n`);
+
+    const newAssistantMsg: ChatMessage = {
+      id: `msg-gmail-${Date.now()}`,
+      role: 'assistant',
+      content: summaryText,
+      timestamp: 'Just now',
+    };
+
+    setMessages((prev) => [...prev, newAssistantMsg]);
+
+    // Also register invoice as a document in the vault if not already present
+    if (!documents.some((d) => d.id === email.id)) {
+      const docItem: DocumentItem = {
+        id: email.id,
+        name: email.attachment_name,
+        size: email.attachment_size,
+        pages: 1,
+        status: 'INDEXED',
+        uploadedAt: email.received_at,
+        structuredInvoice: email.structured_invoice,
+        auditResult: email.audit_result,
+        whatsappDraft: email.whatsapp_draft,
+      };
+      setDocuments((prev) => [docItem, ...prev]);
+      setSelectedDocumentIds([docItem.id]);
+    }
+  };
 
   // Helper to persist current session's messages and metadata locally
   const persistMessagesLocally = async (
@@ -1237,6 +1389,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isSourceSheetOpen,
         openSourceSheet,
         closeSourceSheet,
+        gmailInbox,
+        newGmailInvoicesCount,
+        isGmailInboxOpen,
+        setIsGmailInboxOpen,
+        loadGmailInbox,
+        analyseEmailInvoice,
+        sendEmailDispute,
+        addEmailInvoiceToChat,
         runFheSearch,
       }}
     >

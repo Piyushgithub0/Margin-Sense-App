@@ -1,45 +1,46 @@
 import { Platform } from 'react-native';
 
 export const Colors = {
-  // Backgrounds — deep black with a barely-there green tint
-  background: '#080C08',
-  surface: '#0E1410',
-  surfaceElevated: '#141C14',
-  surfaceCard: 'rgba(255, 255, 255, 0.03)',
-  surfaceHighlight: 'rgba(34, 197, 94, 0.06)',
+  // Backgrounds — clean white with crisp light surfaces
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFFFF',
+  surfaceCard: '#F8FAFC',
+  surfaceHighlight: 'rgba(22, 163, 74, 0.08)',
 
-  // Primary accent — vibrant emerald green
-  primary: '#22C55E',
-  primaryCyan: '#22C55E',      // legacy alias kept for zero-diff compat
-  primaryGlow: 'rgba(34, 197, 94, 0.18)',
+  // Primary accent — vibrant emerald green (profit, success, primary triggers)
+  primary: '#16A34A',
+  primaryCyan: '#16A34A',      // legacy alias kept for zero-diff compat
+  primaryGlow: 'rgba(22, 163, 74, 0.18)',
 
-  // Secondary — a muted sage/lime for softer accents
-  secondary: '#4ADE80',
-  secondaryPurple: '#4ADE80',  // legacy alias
-  purpleGlow: 'rgba(74, 222, 128, 0.12)',
+  // Secondary accent — electric royal blue (tech intelligence, links, secondary)
+  secondary: '#2563EB',
+  secondaryPurple: '#2563EB',  // legacy alias
+  purpleGlow: 'rgba(37, 99, 235, 0.15)',
 
-  // Text — near-white on dark
-  textPrimary: '#F0F4F0',
-  textMuted: '#6B7A6B',
-  textSecondary: '#9CAE9C',
+  // Text — deep crisp black on white
+  textPrimary: '#09090B',
+  textMuted: '#64748B',
+  textSecondary: '#334155',
 
-  // Borders
-  borderSubtle: 'rgba(255, 255, 255, 0.07)',
-  borderCyan: 'rgba(34, 197, 94, 0.28)',    // legacy alias
-  borderPurple: 'rgba(74, 222, 128, 0.22)', // legacy alias
+  // Borders — sleek modern subtle borders
+  borderSubtle: '#E2E8F0',
+  borderCyan: 'rgba(22, 163, 74, 0.35)',    // legacy alias
+  borderPurple: 'rgba(37, 99, 235, 0.35)',  // legacy alias
+  borderBlue: 'rgba(37, 99, 235, 0.35)',
 
   // Semantic
   error: '#EF4444',
-  errorBackground: 'rgba(239, 68, 68, 0.1)',
+  errorBackground: 'rgba(239, 68, 68, 0.08)',
   warning: '#F59E0B',
   warningBackground: 'rgba(245, 158, 11, 0.08)',
-  success: '#22C55E',
+  success: '#16A34A',
 
-  // Status Colors (green-centric)
-  statusQueued: '#6B7A6B',
-  statusOcr: '#4ADE80',
-  statusProcessing: '#22C55E',
-  statusIndexed: '#22C55E',
+  // Status Colors (green & blue centric)
+  statusQueued: '#64748B',
+  statusOcr: '#2563EB',
+  statusProcessing: '#16A34A',
+  statusIndexed: '#16A34A',
 } as const;
 
 export const Fonts = {

@@ -319,13 +319,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.72)',
   },
   sheetContainer: {
-    backgroundColor: '#0F0F1A',
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.borderSubtle,
     maxHeight: SHEET_HEIGHT,
     paddingBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 20,
   },
   handleContainer: {
     alignItems: 'center',
@@ -336,7 +341,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: '#CBD5E1',
   },
   header: {
     flexDirection: 'row',
@@ -345,7 +350,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.07)',
+    borderBottomColor: Colors.borderSubtle,
   },
   titleRow: {
     flexDirection: 'row',
@@ -363,7 +368,7 @@ const styles = StyleSheet.create({
   },
   tabsWrapper: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: Colors.borderSubtle,
   },
   tabsScrollContent: {
     flexDirection: 'row',
@@ -377,13 +382,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.borderSubtle,
   },
   tabPillActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: Colors.primaryCyan,
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
+    borderColor: Colors.secondary,
   },
   tabPillText: {
     fontFamily: Fonts.mono,
@@ -391,7 +396,7 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
   },
   tabPillTextActive: {
-    color: Colors.primaryCyan,
+    color: Colors.secondary,
     fontWeight: '700',
   },
   contentScroll: {
@@ -401,10 +406,10 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   sourceCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    backgroundColor: '#F8FAFC',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: Colors.borderSubtle,
     padding: 14,
     gap: 12,
   },

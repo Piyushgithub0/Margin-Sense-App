@@ -55,6 +55,13 @@ class Settings(SettingsBase):
     FHE_POLY_MODULUS_DEGREE: int = 8192
     FHE_GLOBAL_SCALE_EXPONENT: int = 40
 
+    # Google OAuth & Gmail / SMTP Integration
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/gmail/oauth2callback")
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+
 settings = Settings()
 
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)

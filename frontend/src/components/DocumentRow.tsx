@@ -114,21 +114,26 @@ export function DocumentRow({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.07)',
+    borderColor: Colors.borderSubtle,
     borderRadius: 10,
     padding: 12,
     marginVertical: 4,
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
   selectedContainer: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
-    borderColor: Colors.borderCyan,
+    backgroundColor: 'rgba(22, 163, 74, 0.06)',
+    borderColor: Colors.primary,
   },
   pressedContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: '#F1F5F9',
   },
   contentRow: {
     flexDirection: 'row',
@@ -140,8 +145,8 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },

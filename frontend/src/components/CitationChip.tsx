@@ -40,22 +40,22 @@ export function CitationChip({
   const isLive = sourceType === 'live_api';
 
   const badgeColor = isLive
-    ? '#10B981' // Green/emerald for live clock/weather/market
+    ? '#10B981'
     : isWeb
-    ? '#4ADE80' // Sky blue for web
-    : Colors.primaryCyan; // Cyan for internal docs
+    ? '#2563EB'
+    : Colors.primary;
 
   const badgeBg = isLive
-    ? 'rgba(16, 185, 129, 0.12)'
+    ? 'rgba(16, 185, 129, 0.1)'
     : isWeb
-    ? 'rgba(56, 189, 248, 0.12)'
-    : 'rgba(34, 197, 94, 0.1)';
+    ? 'rgba(37, 99, 235, 0.08)'
+    : 'rgba(22, 163, 74, 0.08)';
 
   const badgeBorder = isLive
-    ? 'rgba(16, 185, 129, 0.4)'
+    ? 'rgba(16, 185, 129, 0.3)'
     : isWeb
-    ? 'rgba(56, 189, 248, 0.4)'
-    : 'rgba(34, 197, 94, 0.35)';
+    ? 'rgba(37, 99, 235, 0.3)'
+    : 'rgba(22, 163, 74, 0.3)';
 
   return (
     <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, styles.wrapper]}>
@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   activeText: {
-    color: '#0A0A0F',
+    color: '#FFFFFF',
   },
 });

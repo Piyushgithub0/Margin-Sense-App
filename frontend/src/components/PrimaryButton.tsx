@@ -98,7 +98,7 @@ export function PrimaryButton({
         {loading ? (
           <ActivityIndicator
             size="small"
-            color={variant === 'primary' ? '#080C08' : Colors.primaryCyan}
+            color={variant === 'primary' ? '#FFFFFF' : Colors.primaryCyan}
           />
         ) : (
           <>
@@ -141,33 +141,33 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryCyan,
     shadowColor: Colors.primaryCyan,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   primaryText: {
-    color: '#080C08',
+    color: '#FFFFFF',
   },
   secondaryContainer: {
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.4)',
+    borderColor: 'rgba(37, 99, 235, 0.3)',
   },
   secondaryText: {
     color: Colors.secondary,
   },
   outlineContainer: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: Colors.borderCyan,
+    borderColor: Colors.borderSubtle,
   },
   outlineText: {
-    color: Colors.primaryCyan,
+    color: Colors.textPrimary,
   },
   dangerContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
   dangerText: {
     color: Colors.error,
@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   disabledContainer: {
-    opacity: 0.4,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    opacity: 0.5,
+    backgroundColor: '#F1F5F9',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
   },
   disabledText: {
     color: Colors.textMuted,

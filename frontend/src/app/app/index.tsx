@@ -35,6 +35,7 @@ import { RelatednessSheet } from '@/components/RelatednessSheet';
 import { InvoiceAuditModal } from '@/components/InvoiceAuditModal';
 import { LeakAlertsSheet } from '@/components/LeakAlertsSheet';
 import { DashboardSheet } from '@/components/DashboardSheet';
+import { GmailInboxSheet } from '@/components/GmailInboxSheet';
 import { CitationSource } from '@/types';
 
 export default function MainAppScreen() {
@@ -99,6 +100,9 @@ export default function MainAppScreen() {
     dashboardKPI,
     isDashboardSheetOpen,
     setIsDashboardSheetOpen,
+    isGmailInboxOpen,
+    setIsGmailInboxOpen,
+    newGmailInvoicesCount,
   } = useApp();
 
   // Scroll to bottom when messages update or generating
@@ -182,6 +186,21 @@ export default function MainAppScreen() {
               />
             }
             accessibilityLabel="Open dashboard KPI"
+          />
+
+          {/* Gmail Invoices Inbox Button */}
+          <IconButton
+            onPress={() => setIsGmailInboxOpen(true)}
+            active={isGmailInboxOpen}
+            badgeCount={newGmailInvoicesCount > 0 ? newGmailInvoicesCount : undefined}
+            icon={
+              <Ionicons
+                name="mail-outline"
+                size={17}
+                color={isGmailInboxOpen ? Colors.primary : Colors.textPrimary}
+              />
+            }
+            accessibilityLabel="Open Gmail Invoices Inbox"
           />
 
           {/* Local Chat History Drawer Button */}
@@ -328,6 +347,23 @@ export default function MainAppScreen() {
             {activeSession?.title || 'Current Conversation'}
           </Text>
           <Ionicons name="chevron-down" size={13} color={Colors.textMuted} />
+        </Pressable>
+
+        {/* Gmail Inboxes Tab / Section beside Initial Consultation */}
+        <Pressable
+          onPress={() => setIsGmailInboxOpen(true)}
+          style={({ pressed }) => [
+            styles.gmailInboxPill,
+            pressed && styles.gmailInboxPillPressed,
+          ]}
+        >
+          <Ionicons name="mail" size={13} color={Colors.primary} />
+          <Text style={styles.gmailInboxPillText}>Inboxes</Text>
+          {newGmailInvoicesCount > 0 && (
+            <View style={styles.gmailBadge}>
+              <Text style={styles.gmailBadgeText}>{newGmailInvoicesCount} New</Text>
+            </View>
+          )}
         </Pressable>
 
         {/* Multi-document Active Context Pill */}
@@ -611,6 +647,12 @@ export default function MainAppScreen() {
         onOpenAlerts={() => setIsLeakAlertsSheetOpen(true)}
         onOpenVault={() => setIsDocumentsSheetOpen(true)}
       />
+
+      {/* Gmail Invoices Inbox Sheet */}
+      <GmailInboxSheet
+        visible={isGmailInboxOpen}
+        onClose={() => setIsGmailInboxOpen(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -627,15 +669,15 @@ const styles = StyleSheet.create({
     height: 56,
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderCyan,
+    borderBottomColor: Colors.borderSubtle,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
-    shadowColor: Colors.primaryCyan,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
     zIndex: 10,
   },
   headerLeft: {
@@ -655,24 +697,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'rgba(8, 20, 8, 0.75)',
+    backgroundColor: '#F8FAFC',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(34, 197, 94, 0.08)',
+    borderBottomColor: Colors.borderSubtle,
   },
   sessionPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: Colors.borderSubtle,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
     maxWidth: '80%',
   },
   sessionPillPressed: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    backgroundColor: '#F1F5F9',
   },
   sessionPillText: {
     fontFamily: Fonts.sans,
@@ -681,25 +723,62 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     flexShrink: 1,
   },
+  gmailInboxPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(22, 163, 74, 0.35)',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  gmailInboxPillPressed: {
+    backgroundColor: '#F1F5F9',
+  },
+  gmailInboxPillText: {
+    fontFamily: Fonts.sans,
+    fontWeight: '700',
+    fontSize: 12,
+    color: Colors.primary,
+  },
+  gmailBadge: {
+    backgroundColor: Colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  gmailBadgeText: {
+    fontFamily: Fonts.mono,
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
   newChatPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(37, 99, 235, 0.3)',
     borderRadius: 14,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   newChatPillPressed: {
-    backgroundColor: 'rgba(34, 197, 94, 0.18)',
+    backgroundColor: 'rgba(37, 99, 235, 0.16)',
   },
   newChatPillText: {
     fontFamily: Fonts.mono,
     fontSize: 11,
     fontWeight: '700',
-    color: Colors.primaryCyan,
+    color: Colors.secondary,
   },
   chatContainer: {
     flex: 1,
@@ -727,10 +806,10 @@ const styles = StyleSheet.create({
   emptyIconOutline: {
     width: 60,
     height: 60,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderColor: Colors.borderSubtle,
+    backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 18,
@@ -768,17 +847,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 9,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   emptySnapText: {
     fontFamily: Fonts.mono,
     fontSize: 12,
     fontWeight: '700',
-    color: '#080C08',
+    color: '#FFFFFF',
   },
   emptyUploadButton: {
-    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: Colors.borderCyan,
+    borderColor: 'rgba(37, 99, 235, 0.3)',
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 9,
@@ -787,7 +870,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.mono,
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.primaryCyan,
+    color: Colors.secondary,
   },
   suggestedPromptsContainer: {
     width: '100%',
@@ -803,45 +886,50 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   promptChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 6,
+    borderColor: Colors.borderSubtle,
+    borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
   promptChipText: {
     fontFamily: Fonts.sans,
     fontSize: 12,
-    color: Colors.textSecondary,
+    color: Colors.textPrimary,
     textAlign: 'center',
   },
   contextIndicatorPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
+    backgroundColor: 'rgba(37, 99, 235, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(37, 99, 235, 0.3)',
     borderRadius: 14,
     paddingHorizontal: 8,
     paddingVertical: 4,
     maxWidth: 160,
   },
   contextIndicatorPillMulti: {
-    backgroundColor: 'rgba(34, 197, 94, 0.14)',
-    borderColor: Colors.borderCyan,
+    backgroundColor: 'rgba(37, 99, 235, 0.14)',
+    borderColor: Colors.secondary,
   },
   contextIndicatorText: {
     fontFamily: Fonts.mono,
     fontSize: 11,
     fontWeight: '600',
-    color: Colors.primaryCyan,
+    color: Colors.secondary,
     flexShrink: 1,
   },
   emptyIconOutlineMulti: {
-    borderColor: Colors.borderCyan,
-    backgroundColor: 'rgba(34, 197, 94, 0.06)',
+    borderColor: Colors.secondary,
+    backgroundColor: 'rgba(37, 99, 235, 0.06)',
   },
   emptyChipsRow: {
     flexDirection: 'row',
@@ -855,9 +943,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    backgroundColor: '#F1F5F9',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#E2E8F0',
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,

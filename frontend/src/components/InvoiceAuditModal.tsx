@@ -214,7 +214,7 @@ export function InvoiceAuditModal({
 
               {invoice.line_items?.map((item, index) => (
                 <View key={index} style={[styles.tableRow, index % 2 === 1 && styles.tableRowAlt]}>
-                  <Text style={[styles.tableCell, { flex: 2.2, color: '#F0F4F0' }]} numberOfLines={2}>
+                  <Text style={[styles.tableCell, { flex: 2.2, color: Colors.textPrimary }]} numberOfLines={2}>
                     {item.description}
                   </Text>
                   <Text style={[styles.tableCell, { flex: 1, textAlign: 'center', color: Colors.textMuted }]}>
@@ -223,7 +223,7 @@ export function InvoiceAuditModal({
                   <Text style={[styles.tableCell, { flex: 1.2, textAlign: 'right', color: Colors.textMuted }]}>
                     ₹{item.unit_rate}
                   </Text>
-                  <Text style={[styles.tableCell, { flex: 1.4, textAlign: 'right', color: '#FFFFFF', fontWeight: '600' }]}>
+                  <Text style={[styles.tableCell, { flex: 1.4, textAlign: 'right', color: Colors.textPrimary, fontWeight: '600' }]}>
                     ₹{item.amount?.toLocaleString('en-IN')}
                   </Text>
                 </View>
@@ -320,12 +320,17 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     height: Math.min(SCREEN_HEIGHT * 0.90, 780),
-    backgroundColor: '#0D140D',
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.25)',
+    borderColor: Colors.borderSubtle,
     paddingTop: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 20,
   },
   header: {
     flexDirection: 'row',
@@ -334,7 +339,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: Colors.borderSubtle,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -345,16 +350,16 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    backgroundColor: 'rgba(22, 163, 74, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.35)',
+    borderColor: 'rgba(22, 163, 74, 0.25)',
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#F0F4F0',
+    color: Colors.textPrimary,
   },
   headerSubtitle: {
     fontSize: 11,
@@ -364,7 +369,7 @@ const styles = StyleSheet.create({
   closeBtn: {
     padding: 6,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#F1F5F9',
   },
   scrollArea: {
     flex: 1,
@@ -375,11 +380,16 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   supplierCard: {
-    backgroundColor: '#121B12',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: Colors.borderSubtle,
     padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
   supplierRow: {
     flexDirection: 'row',
@@ -387,7 +397,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    borderBottomColor: Colors.borderSubtle,
   },
   supplierLabel: {
     fontSize: 10,
@@ -398,7 +408,7 @@ const styles = StyleSheet.create({
   supplierName: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     marginTop: 3,
   },
   gstinBadge: {
@@ -442,7 +452,7 @@ const styles = StyleSheet.create({
   metaValue: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#E0E7E0',
+    color: Colors.textPrimary,
     marginTop: 2,
   },
   leakBanner: {
@@ -527,11 +537,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   sectionCard: {
-    backgroundColor: '#121B12',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: Colors.borderSubtle,
     padding: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -542,13 +557,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#F0F4F0',
+    color: Colors.textPrimary,
   },
   tableHeader: {
     flexDirection: 'row',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: Colors.borderSubtle,
   },
   tableColHead: {
     fontSize: 10,
@@ -561,10 +576,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.04)',
+    borderBottomColor: Colors.borderSubtle,
   },
   tableRowAlt: {
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    backgroundColor: '#FFFFFF',
   },
   tableCell: {
     fontSize: 12,
@@ -573,7 +588,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    borderTopColor: Colors.borderSubtle,
     gap: 6,
   },
   summaryRow: {
