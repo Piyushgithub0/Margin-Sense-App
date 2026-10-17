@@ -610,30 +610,34 @@ export async function sendDisputeEmail(
   }
 }
 
-export interface GoogleAuthUrlResponse {
-  authUrl: string;
-  redirectUri: string;
-  clientId: string;
+/**
+ * Triggers immediate live Gmail IMAP inbox scan & OCR processing.
+ */
+export async function syncGmailInboxNow(): Promise<{ success: boolean; mode?: string; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/gmail/sync-now`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) return { success: false, error: `HTTP ${res.status}` };
+    return await res.json();
+  } catch (err: any) {
+    console.warn('[MarginSense Gmail] IMAP sync failed:', err);
+    return { success: false, error: err.message };
+  }
 }
 
 /**
- * Retrieves Google OAuth authorization URL.
+ * Fetches Gmail IMAP connection diagnostics.
  */
-export async function getGoogleAuthUrl(customRedirectUri?: string): Promise<GoogleAuthUrlResponse | null> {
+export async function fetchGmailStatus(): Promise<any> {
   try {
-    const url = customRedirectUri
-      ? `${API_BASE_URL}/api/gmail/auth-url?redirect_uri=${encodeURIComponent(customRedirectUri)}`
-      : `${API_BASE_URL}/api/gmail/auth-url`;
-    const res = await fetch(url);
+    const res = await fetch(`${API_BASE_URL}/api/gmail/status`);
     if (!res.ok) return null;
-    const data = await res.json();
-    return {
-      authUrl: data.auth_url,
-      redirectUri: data.redirect_uri || 'http://localhost:8000/api/gmail/oauth2callback',
-      clientId: data.client_id || '',
-    };
+    return await res.json();
   } catch (err) {
-    console.warn('[MarginSense Gmail] Failed to get auth URL:', err);
+    console.warn('[MarginSense Gmail] Status fetch failed:', err);
     return null;
   }
 }

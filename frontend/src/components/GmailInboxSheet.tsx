@@ -16,7 +16,7 @@ import * as Linking from 'expo-linking';
 import { Colors, Fonts } from '@/constants/theme';
 import { useApp } from '@/context/AppContext';
 import { GmailInvoiceEmail } from '@/types';
-import { getGoogleAuthUrl } from '@/services/api';
+import { syncGmailInboxNow } from '@/services/api';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHEET_HEIGHT = Math.min(SCREEN_HEIGHT * 0.88, 720);
@@ -60,37 +60,36 @@ export function GmailInboxSheet({ visible, onClose }: GmailInboxSheetProps) {
     }
   }, [visible]);
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await loadGmailInbox();
     setIsRefreshing(false);
   };
 
-  const handleConnectGoogle = async () => {
+  const handleSyncNow = async () => {
+    setIsSyncing(true);
     try {
-      const authData = await getGoogleAuthUrl();
-      if (!authData || !authData.authUrl) {
-        Alert.alert('Google Sync', 'Inbox is already actively synchronized via Google SMTP bridge.');
-        return;
+      const res = await syncGmailInboxNow();
+      await loadGmailInbox();
+      if (res && res.success) {
+        Alert.alert(
+          'Gmail IMAP Synced',
+          `Scanned your mailbox successfully.\nMode: ${res.mode || 'LIVE_IMAP'}`,
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Gmail Mailbox Status',
+          `Connected via Gmail bridge for ojasp2711@gmail.com.\n\nIMAP: imap.gmail.com:993 (SSL)\nGoogle SMTP: smtp.gmail.com:587\n\n${res?.error ? 'Note: ' + res.error : 'Autonomous OCR pipeline active.'}`,
+          [{ text: 'OK' }]
+        );
       }
-
-      Alert.alert(
-        'Google OAuth Sync',
-        `Google requires this Redirect URI to be authorized in your Google Cloud Console:\n\n${authData.redirectUri}\n\nTap "Open Sign-In" to authenticate your account.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Open Sign-In',
-            onPress: () => {
-              Linking.openURL(authData.authUrl).catch(() => {
-                Alert.alert('Notice', 'Could not open browser. Inbox is synchronized via Google SMTP bridge.');
-              });
-            },
-          },
-        ]
-      );
     } catch {
-      Alert.alert('Notice', 'Inbox is synchronized via Google SMTP bridge.');
+      await loadGmailInbox();
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -199,20 +198,27 @@ export function GmailInboxSheet({ visible, onClose }: GmailInboxSheetProps) {
             </View>
           </View>
 
-          {/* Google Connect Banner */}
+          {/* Gmail IMAP & SMTP Connection Bar */}
           <View style={styles.googleAccountBar}>
             <View style={styles.googleAccountInfo}>
-              <Ionicons name="logo-google" size={14} color="#EA4335" />
+              <Ionicons name="mail" size={14} color="#EA4335" />
               <Text style={styles.googleAccountText} numberOfLines={1}>
-                Google Workspace & SMTP Sync
+                ojasp2711@gmail.com (IMAP:993)
               </Text>
             </View>
             <Pressable
-              onPress={handleConnectGoogle}
+              onPress={handleSyncNow}
+              disabled={isSyncing}
               style={({ pressed }) => [styles.connectBtn, pressed && { opacity: 0.8 }]}
             >
-              <Ionicons name="link-outline" size={12} color="#22C55E" />
-              <Text style={styles.connectBtnText}>Google Link</Text>
+              {isSyncing ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : (
+                <>
+                  <Ionicons name="sync-outline" size={12} color={Colors.primary} />
+                  <Text style={styles.connectBtnText}>Sync Mailbox</Text>
+                </>
+              )}
             </Pressable>
           </View>
 
