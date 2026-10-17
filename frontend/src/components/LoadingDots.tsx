@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   bubble: {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.3)',
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 14,

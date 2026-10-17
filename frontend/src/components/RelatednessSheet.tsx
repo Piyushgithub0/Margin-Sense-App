@@ -79,7 +79,7 @@ export function RelatednessSheet({
     score >= 70
       ? Colors.primaryCyan
       : score >= 45
-      ? '#38BDF8'
+      ? '#4ADE80'
       : score >= 25
       ? '#F59E0B'
       : '#94A3B8';
@@ -242,7 +242,7 @@ export function RelatednessSheet({
                         pairScore >= 70
                           ? Colors.primaryCyan
                           : pairScore >= 45
-                          ? '#38BDF8'
+                          ? '#4ADE80'
                           : pairScore >= 25
                           ? '#F59E0B'
                           : '#94A3B8';
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.18)',
+    borderColor: 'rgba(34, 197, 94, 0.18)',
     height: SHEET_HEIGHT,
     paddingTop: 10,
     paddingBottom: 24,
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -588,9 +588,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.25)',
+    borderColor: 'rgba(34, 197, 94, 0.25)',
     borderRadius: 12,
     paddingHorizontal: 9,
     paddingVertical: 4,
@@ -708,9 +708,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(0, 240, 255, 0.06)',
+    backgroundColor: 'rgba(34, 197, 94, 0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.2)',
+    borderColor: 'rgba(34, 197, 94, 0.2)',
     borderRadius: 10,
     padding: 10,
   },

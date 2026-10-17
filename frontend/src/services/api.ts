@@ -71,7 +71,7 @@ export async function fetchBackendDocuments(): Promise<DocumentItem[] | null> {
       };
     });
   } catch (err) {
-    console.log('[DocuMind API] Documents fetch skipped/offline:', err);
+    console.log('[MarginSense API] Documents fetch skipped/offline:', err);
     return null;
   }
 }
@@ -102,16 +102,16 @@ export async function uploadDocumentToBackend(
         try {
           await FileSystem.copyAsync({ from: fileUri, to: destUri });
           readableUri = destUri;
-          console.log(`[DocuMind API] Copied to writable path: ${destUri}`);
+          console.log(`[MarginSense API] Copied to writable path: ${destUri}`);
         } catch (copyErr) {
-          console.warn(`[DocuMind API] File copy failed (${copyErr}), using original URI...`);
+          console.warn(`[MarginSense API] File copy failed (${copyErr}), using original URI...`);
         }
       }
 
       // ── 1. Native Multipart via FileSystem.uploadAsync ─────────────────────
       if (typeof FileSystem.uploadAsync === 'function') {
         try {
-          console.log(`[DocuMind API] Uploading ${fileName} via uploadAsync to ${uploadUrl}`);
+          console.log(`[MarginSense API] Uploading ${fileName} via uploadAsync to ${uploadUrl}`);
           const uploadResult = await FileSystem.uploadAsync(uploadUrl, readableUri, {
             httpMethod: 'POST',
             uploadType: 1 as any, // MULTIPART
@@ -133,16 +133,16 @@ export async function uploadDocumentToBackend(
               uploadedAt: 'Just now',
             };
           } else {
-            console.warn(`[DocuMind API] uploadAsync status ${uploadResult.status}, falling back to Base64...`);
+            console.warn(`[MarginSense API] uploadAsync status ${uploadResult.status}, falling back to Base64...`);
           }
         } catch (uploadAsyncErr) {
-          console.warn(`[DocuMind API] uploadAsync error (${uploadAsyncErr}), trying Base64...`);
+          console.warn(`[MarginSense API] uploadAsync error (${uploadAsyncErr}), trying Base64...`);
         }
       }
 
       // ── 2. Base64 JSON fallback ─────────────────────────────────────────────
       try {
-        console.log(`[DocuMind API] Uploading ${fileName} via Base64 JSON to ${base64UploadUrl}`);
+        console.log(`[MarginSense API] Uploading ${fileName} via Base64 JSON to ${base64UploadUrl}`);
         const base64Data = await FileSystem.readAsStringAsync(readableUri, {
           encoding: 'base64' as any,
         });
@@ -166,16 +166,16 @@ export async function uploadDocumentToBackend(
             uploadedAt: 'Just now',
           };
         } else {
-          console.warn(`[DocuMind API] Base64 upload HTTP ${b64Res.status}:`, await b64Res.text());
+          console.warn(`[MarginSense API] Base64 upload HTTP ${b64Res.status}:`, await b64Res.text());
         }
       } catch (b64Err) {
-        console.warn(`[DocuMind API] Base64 upload error:`, b64Err);
+        console.warn(`[MarginSense API] Base64 upload error:`, b64Err);
         if (readableUri !== fileUri) FileSystem.deleteAsync(readableUri, { idempotent: true }).catch(() => {});
       }
     }
 
     // ── 3. Fallback / Web: Fetch Blob and append to standard FormData ──
-    console.log(`[DocuMind API] Uploading ${fileName} via Web FormData fallback to ${uploadUrl}`);
+    console.log(`[MarginSense API] Uploading ${fileName} via Web FormData fallback to ${uploadUrl}`);
     const localRes = await fetch(fileUri);
     const blob = await localRes.blob();
 
@@ -200,11 +200,11 @@ export async function uploadDocumentToBackend(
       };
     } else {
       const errText = await res.text();
-      console.warn(`[DocuMind API] FormData upload HTTP ${res.status}:`, errText);
+      console.warn(`[MarginSense API] FormData upload HTTP ${res.status}:`, errText);
       return null;
     }
   } catch (err) {
-    console.log('[DocuMind API] Upload to backend error:', err);
+    console.log('[MarginSense API] Upload to backend error:', err);
     return null;
   }
 }
@@ -264,10 +264,10 @@ export async function sendQueryToBackend(
         relevance: c.relevance || 85,
       })),
       isInsufficientInfo: Boolean(data.is_insufficient_info),
-      modelUsed: data.model_used || 'DocuMind RAG',
+      modelUsed: data.model_used || 'MarginSense RAG',
     };
   } catch (err) {
-    console.log('[DocuMind API] Chat query error, using offline fallback:', err);
+    console.log('[MarginSense API] Chat query error, using offline fallback:', err);
     return null;
   }
 }
@@ -301,7 +301,7 @@ export async function performFheSearch(
     if (!searchRes.ok) return null;
     return await searchRes.json();
   } catch (err) {
-    console.log('[DocuMind API] FHE search offline:', err);
+    console.log('[MarginSense API] FHE search offline:', err);
     return null;
   }
 }
@@ -345,7 +345,7 @@ export async function performVisualSearch(
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
-    console.log('[DocuMind API] Visual search offline:', err);
+    console.log('[MarginSense API] Visual search offline:', err);
     return null;
   }
 }
@@ -359,7 +359,7 @@ export async function fetchDocumentForensics(docId: string): Promise<any | null>
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
-    console.log('[DocuMind API] Forensics fetch offline:', err);
+    console.log('[MarginSense API] Forensics fetch offline:', err);
     return null;
   }
 }
@@ -406,7 +406,7 @@ export async function checkDocumentsRelatedness(
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
-    console.log('[DocuMind API] Relatedness analysis error:', err);
+    console.log('[MarginSense API] Relatedness analysis error:', err);
     return null;
   }
 }
@@ -421,7 +421,7 @@ export async function reindexDocument(docId: string): Promise<boolean> {
     });
     return res.ok;
   } catch (err) {
-    console.log('[DocuMind API] Reindex document error:', err);
+    console.log('[MarginSense API] Reindex document error:', err);
     return false;
   }
 }
@@ -452,7 +452,7 @@ export async function generateVoiceover(
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
-    console.log('[DocuMind API] Voiceover synthesis error:', err);
+    console.log('[MarginSense API] Voiceover synthesis error:', err);
     return null;
   }
 }

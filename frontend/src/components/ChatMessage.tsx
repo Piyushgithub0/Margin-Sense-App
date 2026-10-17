@@ -247,7 +247,7 @@ export function ChatMessageItem({
         <View style={styles.assistantHeader}>
           <View style={styles.senderContainer}>
             <View style={styles.assistantAccentDot} />
-            <Text style={styles.assistantSender}>DocuMind AI</Text>
+            <Text style={styles.assistantSender}>MarginSense AI</Text>
           </View>
           <VoiceoverButton text={message.content} />
         </View>
@@ -280,20 +280,20 @@ export function ChatMessageItem({
                 const badgeColor = isLive
                   ? '#10B981'
                   : isWeb
-                  ? '#38BDF8'
+                  ? '#4ADE80'
                   : Colors.primaryCyan;
 
                 const badgeBg = isLive
                   ? 'rgba(16, 185, 129, 0.08)'
                   : isWeb
                   ? 'rgba(56, 189, 248, 0.08)'
-                  : 'rgba(34, 211, 238, 0.08)';
+                  : 'rgba(34, 197, 94, 0.08)';
 
                 const badgeBorder = isLive
                   ? 'rgba(16, 185, 129, 0.3)'
                   : isWeb
                   ? 'rgba(56, 189, 248, 0.3)'
-                  : 'rgba(34, 211, 238, 0.3)';
+                  : 'rgba(34, 197, 94, 0.3)';
 
                 const titleLabel =
                   decodeURIComponent(c.documentName || 'Source')

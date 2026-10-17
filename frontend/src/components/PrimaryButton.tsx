@@ -98,7 +98,7 @@ export function PrimaryButton({
         {loading ? (
           <ActivityIndicator
             size="small"
-            color={variant === 'primary' ? '#0A0A0F' : Colors.primaryCyan}
+            color={variant === 'primary' ? '#080C08' : Colors.primaryCyan}
           />
         ) : (
           <>
@@ -141,20 +141,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryCyan,
     shadowColor: Colors.primaryCyan,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
   },
   primaryText: {
-    color: '#0A0A0F',
+    color: '#080C08',
   },
   secondaryContainer: {
-    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.4)',
+    borderColor: 'rgba(34, 197, 94, 0.4)',
   },
   secondaryText: {
-    color: Colors.secondaryPurple,
+    color: Colors.secondary,
   },
   outlineContainer: {
     backgroundColor: 'transparent',

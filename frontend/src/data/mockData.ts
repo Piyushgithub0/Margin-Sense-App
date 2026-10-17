@@ -114,7 +114,7 @@ export const MOCK_KNOWLEDGE_BASE: MockAnswer[] = [
         documentId: 'doc-1',
         documentName: 'employee_handbook.pdf',
         page: 9,
-        snippet: 'Planned vacation time exceeding 3 consecutive business days must be logged via the DocuMind People Portal at least 14 days prior to commencement.',
+        snippet: 'Planned vacation time exceeding 3 consecutive business days must be logged via the MarginSense Portal at least 14 days prior to commencement.',
         relevance: 89,
       },
     ],

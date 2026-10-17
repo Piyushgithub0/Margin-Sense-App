@@ -21,7 +21,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { login } = useApp();
 
-  const [email, setEmail] = useState('engineer@documind.ai');
+  const [email, setEmail] = useState('owner@marginsense.ai');
   const [password, setPassword] = useState('password123');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -176,8 +176,8 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 18,
     marginTop: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderColor: 'rgba(34, 211, 238, 0.2)',
+    backgroundColor: 'rgba(34, 197, 94, 0.03)',
+    borderColor: 'rgba(34, 197, 94, 0.22)',
   },
   fieldGroup: {
     gap: 6,
@@ -239,6 +239,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.mono,
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.primaryCyan,
+    color: Colors.primary,
   },
 });

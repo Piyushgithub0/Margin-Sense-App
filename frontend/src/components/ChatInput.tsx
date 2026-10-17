@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(34, 211, 238, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderWidth: 1,
     borderColor: Colors.borderCyan,
     borderRadius: 6,
@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
   },
   multiContextBar: {
     marginBottom: 8,
-    backgroundColor: 'rgba(34, 211, 238, 0.04)',
+    backgroundColor: 'rgba(34, 197, 94, 0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.25)',
+    borderColor: 'rgba(34, 197, 94, 0.25)',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingTop: 6,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   manageDocsBtn: {
     paddingHorizontal: 6,
     paddingVertical: 2,
-    backgroundColor: 'rgba(34, 211, 238, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     borderRadius: 4,
   },
   manageDocsText: {

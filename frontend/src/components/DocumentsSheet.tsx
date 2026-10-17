@@ -143,8 +143,8 @@ export function DocumentsSheet({
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.titleRow}>
-              <Ionicons name="folder-outline" size={18} color={Colors.primaryCyan} />
-              <Text style={styles.headerTitle}>Knowledge Base</Text>
+              <Ionicons name="receipt-outline" size={18} color={Colors.primaryCyan} />
+              <Text style={styles.headerTitle}>Invoice Vault</Text>
               <View style={styles.countBadge}>
                 <Text style={styles.countText}>{documents.length}</Text>
               </View>
@@ -181,8 +181,8 @@ export function DocumentsSheet({
                   <Ionicons name="document-attach" size={20} color={Colors.primaryCyan} />
                 </View>
                 <View style={styles.uploadTextContainer}>
-                  <Text style={styles.uploadTitle}>+ Upload Documents</Text>
-                  <Text style={styles.uploadSubtitle}>PDF • DOCX • XLSX • TXT • CSV</Text>
+                  <Text style={styles.uploadTitle}>+ Upload Invoice / Bill</Text>
+                  <Text style={styles.uploadSubtitle}>PDF • WhatsApp Screenshot • Image</Text>
                 </View>
               </Pressable>
 
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.2)',
+    borderColor: 'rgba(34, 197, 94, 0.2)',
     height: SHEET_HEIGHT,
     paddingTop: 8,
     paddingBottom: 24,
@@ -463,9 +463,9 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   countBadge: {
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.3)',
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -499,10 +499,10 @@ const styles = StyleSheet.create({
   uploadArea: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(34, 211, 238, 0.05)',
+    backgroundColor: 'rgba(34, 197, 94, 0.05)',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: 'rgba(34, 211, 238, 0.35)',
+    borderColor: 'rgba(34, 197, 94, 0.35)',
     borderRadius: 12,
     padding: 12,
     gap: 12,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   },
   uploadAreaPressed: {
     opacity: 0.75,
-    backgroundColor: 'rgba(34, 211, 238, 0.1)',
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
   },
   uploadAreaDisabled: {
     opacity: 0.5,
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: 'rgba(34, 211, 238, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.mono,
     fontSize: 13,
     fontWeight: '700',
-    color: '#38BDF8',
+    color: '#4ADE80',
   },
   uploadSubtitle: {
     fontFamily: Fonts.sans,
@@ -566,18 +566,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(0, 240, 255, 0.05)',
+    backgroundColor: 'rgba(34, 197, 94, 0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.22)',
+    borderColor: 'rgba(34, 197, 94, 0.22)',
     borderRadius: 12,
     padding: 12,
   },
   relatednessCardHighlight: {
-    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
     borderColor: Colors.primaryCyan,
   },
   relatednessCardPressed: {
-    backgroundColor: 'rgba(0, 240, 255, 0.16)',
+    backgroundColor: 'rgba(34, 197, 94, 0.16)',
   },
   relatednessLeft: {
     flexDirection: 'row',
@@ -589,12 +589,12 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   relatednessIconCircleHighlight: {
-    backgroundColor: 'rgba(0, 240, 255, 0.25)',
+    backgroundColor: 'rgba(34, 197, 94, 0.25)',
   },
   relatednessTexts: {
     gap: 2,
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
   uploadingCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.25)',
+    borderColor: 'rgba(34, 197, 94, 0.25)',
     borderRadius: 10,
     padding: 12,
     gap: 8,
@@ -666,7 +666,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(34, 211, 238, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderWidth: 1,
     borderColor: Colors.borderCyan,
     borderRadius: 8,
@@ -780,9 +780,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.3)',
     paddingVertical: 10,
     borderRadius: 10,
   },

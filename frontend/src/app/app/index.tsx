@@ -104,20 +104,20 @@ export default function MainAppScreen() {
   const currentPrompts =
     selectedDocuments.length > 1
       ? [
-          `Compare ${selectedDocuments[0]?.name.slice(0, 16)} and ${selectedDocuments[1]?.name.slice(0, 16)}`,
-          'What are the key differences or conflicting guidelines between these files?',
-          `Synthesize an executive summary across all ${selectedDocuments.length} documents`,
+          `Compare supplier invoices: ${selectedDocuments[0]?.name.slice(0, 16)} vs ${selectedDocuments[1]?.name.slice(0, 16)}`,
+          'What profit leaks were detected across these bills?',
+          `Summarize total overcharges across all ${selectedDocuments.length} documents in ₹`,
         ]
       : selectedDocument
       ? [
-          `What is the primary topic of ${selectedDocument.name}?`,
-          'What are the core requirements and policies mentioned?',
-          'Provide a detailed section-by-section breakdown.',
+          `What price creep or overcharges are in ${selectedDocument.name}?`,
+          'Identify any GST mismatches or freight overcharges.',
+          'Draft a supplier resolution message in Hindi.',
         ]
       : [
-          "What is the company's refund policy?",
-          'How many days of leave are employees entitled to?',
-          'What are the requirements mentioned in the document?',
+          'Where did my margins drop this month?',
+          'Show me all unresolved price creep leaks.',
+          'Which supplier is causing the most profit loss?',
         ];
 
   return (
@@ -163,7 +163,7 @@ export default function MainAppScreen() {
                   isRelatednessSheetOpen
                     ? Colors.primaryCyan
                     : documents.length >= 2
-                    ? '#38BDF8'
+                    ? '#4ADE80'
                     : Colors.textPrimary
                 }
               />
@@ -343,17 +343,17 @@ export default function MainAppScreen() {
               </View>
               <Text style={styles.emptyTitle}>
                 {selectedDocuments.length > 1
-                  ? `Ready to query\n${selectedDocuments.length} Selected Documents`
+                  ? `Audit Ready\n${selectedDocuments.length} Invoices Selected`
                   : selectedDocument
-                  ? `Ready to query\n${formatDocName(selectedDocument.name)}`
-                  : 'Upload a document\nto get started'}
+                  ? `Auditing\n${formatDocName(selectedDocument.name)}`
+                  : 'Upload an invoice\nto detect profit leaks'}
               </Text>
               <Text style={styles.emptySubtitle}>
                 {selectedDocuments.length > 1
-                  ? `Cross-referencing: ${selectedDocuments.map((d) => formatDocName(d.name)).join(', ')}\nAsk comparative questions, find discrepancies, or synthesize findings across all files.`
+                  ? `Cross-auditing ${selectedDocuments.length} bills • Detects price creep, duplicates, GST mismatches & overcharges.`
                   : selectedDocument
-                  ? 'Ask anything about this document.\nResponses and history are stored locally only.'
-                  : 'Upload a PDF, image, or document.\nYour chat is saved locally on device.'}
+                  ? 'Ask about overcharges, tax mismatches, or draft a supplier message.'
+                  : 'Upload a PDF bill or WhatsApp screenshot.\nAll data is stored securely on device.'}
               </Text>
 
               {/* Multi-document chip preview */}
@@ -380,10 +380,10 @@ export default function MainAppScreen() {
               >
                 <Text style={styles.emptyUploadText}>
                   {selectedDocuments.length > 1
-                    ? `Manage Documents (${selectedDocuments.length} Selected)`
+                    ? `Manage Invoices (${selectedDocuments.length} Selected)`
                     : selectedDocument
-                    ? 'Switch Document'
-                    : '+ Select Document'}
+                    ? 'Switch Invoice'
+                    : '+ Upload Invoice / Bill'}
                 </Text>
               </Pressable>
 
@@ -391,7 +391,7 @@ export default function MainAppScreen() {
               <View style={styles.suggestedPromptsContainer}>
                 <Text style={styles.suggestedHeader}>
                   {selectedDocuments.length > 1
-                    ? 'SUGGESTED MULTI-DOCUMENT QUERIES'
+                    ? 'SUGGESTED AUDIT QUERIES'
                     : 'SUGGESTED QUERIES'}
                 </Text>
                 {currentPrompts.map((prompt, idx) => (
@@ -541,9 +541,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    backgroundColor: 'rgba(8, 20, 8, 0.75)',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: 'rgba(34, 197, 94, 0.08)',
   },
   sessionPill: {
     flexDirection: 'row',
@@ -551,14 +551,14 @@ const styles = StyleSheet.create({
     gap: 6,
     backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.18)',
+    borderColor: 'rgba(34, 197, 94, 0.2)',
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
     maxWidth: '80%',
   },
   sessionPillPressed: {
-    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
   },
   sessionPillText: {
     fontFamily: Fonts.sans,
@@ -571,15 +571,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.25)',
+    borderColor: 'rgba(34, 197, 94, 0.3)',
     borderRadius: 14,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   newChatPillPressed: {
-    backgroundColor: 'rgba(0, 240, 255, 0.16)',
+    backgroundColor: 'rgba(34, 197, 94, 0.18)',
   },
   newChatPillText: {
     fontFamily: Fonts.mono,
@@ -639,7 +639,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyUploadButton: {
-    backgroundColor: 'rgba(34, 211, 238, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     borderWidth: 1,
     borderColor: Colors.borderCyan,
     borderRadius: 6,
@@ -684,16 +684,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(34, 211, 238, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.3)',
     borderRadius: 14,
     paddingHorizontal: 8,
     paddingVertical: 4,
     maxWidth: 160,
   },
   contextIndicatorPillMulti: {
-    backgroundColor: 'rgba(34, 211, 238, 0.14)',
+    backgroundColor: 'rgba(34, 197, 94, 0.14)',
     borderColor: Colors.borderCyan,
   },
   contextIndicatorText: {
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
   },
   emptyIconOutlineMulti: {
     borderColor: Colors.borderCyan,
-    backgroundColor: 'rgba(34, 211, 238, 0.06)',
+    backgroundColor: 'rgba(34, 197, 94, 0.06)',
   },
   emptyChipsRow: {
     flexDirection: 'row',

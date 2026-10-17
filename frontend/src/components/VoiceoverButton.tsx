@@ -86,7 +86,7 @@ export const VoiceoverButton: React.FC<VoiceoverButtonProps> = ({ text }) => {
   const iconName: any =
     status === 'playing' ? 'stop-circle' : 'volume-medium-outline';
 
-  const iconColor = status === 'playing' ? '#22c55e' : '#a855f7';
+  const iconColor = status === 'playing' ? '#22c55e' : '#22C55E';
 
   const label =
     status === 'loading' ? 'Generating...' :

@@ -86,7 +86,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>({
-    email: 'engineer@documind.ai',
+    email: 'owner@marginsense.ai',
     token: 'mock-jwt-token-123',
   });
 

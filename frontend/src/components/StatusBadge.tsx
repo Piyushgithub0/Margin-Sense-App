@@ -44,20 +44,20 @@ export function StatusBadge({ status, size = 'small' }: StatusBadgeProps) {
         };
       case 'OCR':
         return {
-          bg: 'rgba(168, 85, 247, 0.12)',
-          border: 'rgba(168, 85, 247, 0.35)',
+          bg: 'rgba(34, 197, 94, 0.12)',
+          border: 'rgba(34, 197, 94, 0.35)',
           color: Colors.statusOcr,
         };
       case 'PROCESSING':
         return {
-          bg: 'rgba(34, 211, 238, 0.12)',
-          border: 'rgba(34, 211, 238, 0.35)',
+          bg: 'rgba(34, 197, 94, 0.12)',
+          border: 'rgba(34, 197, 94, 0.35)',
           color: Colors.statusProcessing,
         };
       case 'INDEXED':
       default:
         return {
-          bg: 'rgba(34, 211, 238, 0.15)',
+          bg: 'rgba(34, 197, 94, 0.15)',
           border: Colors.primaryCyan,
           color: Colors.primaryCyan,
         };

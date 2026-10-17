@@ -139,7 +139,7 @@ export function ChatsSheet({
                 <Text style={styles.headerTitle}>Local Chat History</Text>
                 <View style={styles.privacyBadge}>
                   <Ionicons name="shield-checkmark" size={11} color={Colors.primaryCyan} />
-                  <Text style={styles.privacyText}>Stored locally on-device • Zero Cloud</Text>
+                  <Text style={styles.privacyText}>Audit sessions • Stored on-device</Text>
                 </View>
               </View>
             </View>
@@ -165,8 +165,8 @@ export function ChatsSheet({
                 pressed && styles.newChatBtnPressed,
               ]}
             >
-              <Ionicons name="add" size={18} color="#0B101B" />
-              <Text style={styles.newChatBtnText}>Start New Chat</Text>
+              <Ionicons name="add" size={18} color="#080C08" />
+              <Text style={styles.newChatBtnText}>Start New Audit Chat</Text>
             </Pressable>
           </View>
 
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.15)',
+    borderColor: 'rgba(34, 197, 94, 0.15)',
     height: SHEET_HEIGHT,
     paddingTop: 10,
     paddingBottom: 24,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -463,8 +463,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sessionCardActive: {
-    backgroundColor: 'rgba(0, 240, 255, 0.06)',
-    borderColor: 'rgba(0, 240, 255, 0.35)',
+    backgroundColor: 'rgba(34, 197, 94, 0.06)',
+    borderColor: 'rgba(34, 197, 94, 0.35)',
   },
   sessionCardPressed: {
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -497,12 +497,12 @@ const styles = StyleSheet.create({
     color: Colors.primaryCyan,
   },
   activeTag: {
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.3)',
   },
   activeTagText: {
     fontFamily: Fonts.mono,
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
   renameConfirmBtn: {
     padding: 4,
     borderRadius: 6,
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
   },
   footer: {
     paddingHorizontal: 20,

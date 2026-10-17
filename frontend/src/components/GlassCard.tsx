@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surfaceCard,
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.15)',
-    borderRadius: 8,
+    borderColor: 'rgba(34, 197, 94, 0.15)',
+    borderRadius: 10,
     padding: 16,
     position: 'relative',
     overflow: 'hidden',

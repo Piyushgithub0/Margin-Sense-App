@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   selectedContainer: {
-    backgroundColor: 'rgba(34, 211, 238, 0.08)',
+    backgroundColor: 'rgba(34, 197, 94, 0.08)',
     borderColor: Colors.borderCyan,
   },
   pressedContainer: {

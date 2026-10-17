@@ -1,39 +1,45 @@
 import { Platform } from 'react-native';
 
 export const Colors = {
-  background: '#0A0A0F',
-  surface: '#12121A',
-  surfaceElevated: '#181826',
+  // Backgrounds — deep black with a barely-there green tint
+  background: '#080C08',
+  surface: '#0E1410',
+  surfaceElevated: '#141C14',
   surfaceCard: 'rgba(255, 255, 255, 0.03)',
-  surfaceHighlight: 'rgba(34, 211, 238, 0.06)',
-  
-  primary: '#22D3EE', // Cyan
-  primaryCyan: '#22D3EE',
-  primaryGlow: 'rgba(34, 211, 238, 0.15)',
-  
-  secondary: '#A855F7', // Purple
-  secondaryPurple: '#A855F7',
-  purpleGlow: 'rgba(168, 85, 247, 0.15)',
-  
-  textPrimary: '#E5E5E5',
-  textMuted: '#8B8B95',
-  textSecondary: '#A3A3AF',
-  
-  borderSubtle: 'rgba(255, 255, 255, 0.08)',
-  borderCyan: 'rgba(34, 211, 238, 0.25)',
-  borderPurple: 'rgba(168, 85, 247, 0.25)',
-  
+  surfaceHighlight: 'rgba(34, 197, 94, 0.06)',
+
+  // Primary accent — vibrant emerald green
+  primary: '#22C55E',
+  primaryCyan: '#22C55E',      // legacy alias kept for zero-diff compat
+  primaryGlow: 'rgba(34, 197, 94, 0.18)',
+
+  // Secondary — a muted sage/lime for softer accents
+  secondary: '#4ADE80',
+  secondaryPurple: '#4ADE80',  // legacy alias
+  purpleGlow: 'rgba(74, 222, 128, 0.12)',
+
+  // Text — near-white on dark
+  textPrimary: '#F0F4F0',
+  textMuted: '#6B7A6B',
+  textSecondary: '#9CAE9C',
+
+  // Borders
+  borderSubtle: 'rgba(255, 255, 255, 0.07)',
+  borderCyan: 'rgba(34, 197, 94, 0.28)',    // legacy alias
+  borderPurple: 'rgba(74, 222, 128, 0.22)', // legacy alias
+
+  // Semantic
   error: '#EF4444',
   errorBackground: 'rgba(239, 68, 68, 0.1)',
   warning: '#F59E0B',
   warningBackground: 'rgba(245, 158, 11, 0.08)',
-  success: '#22D3EE',
-  
-  // Status Colors
-  statusQueued: '#8B8B95',
-  statusOcr: '#A855F7',
-  statusProcessing: '#22D3EE',
-  statusIndexed: '#22D3EE',
+  success: '#22C55E',
+
+  // Status Colors (green-centric)
+  statusQueued: '#6B7A6B',
+  statusOcr: '#4ADE80',
+  statusProcessing: '#22C55E',
+  statusIndexed: '#22C55E',
 } as const;
 
 export const Fonts = {

@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   activeButton: {
-    backgroundColor: 'rgba(34, 211, 238, 0.12)',
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     borderColor: Colors.primaryCyan,
     shadowColor: Colors.primaryCyan,
     shadowOffset: { width: 0, height: 0 },
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   pressedButton: {
-    backgroundColor: 'rgba(34, 211, 238, 0.18)',
+    backgroundColor: 'rgba(34, 197, 94, 0.18)',
     borderColor: Colors.primaryCyan,
   },
   badgeDot: {

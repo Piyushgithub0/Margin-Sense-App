@@ -42,20 +42,20 @@ export function CitationChip({
   const badgeColor = isLive
     ? '#10B981' // Green/emerald for live clock/weather/market
     : isWeb
-    ? '#38BDF8' // Sky blue for web
+    ? '#4ADE80' // Sky blue for web
     : Colors.primaryCyan; // Cyan for internal docs
 
   const badgeBg = isLive
     ? 'rgba(16, 185, 129, 0.12)'
     : isWeb
     ? 'rgba(56, 189, 248, 0.12)'
-    : 'rgba(34, 211, 238, 0.1)';
+    : 'rgba(34, 197, 94, 0.1)';
 
   const badgeBorder = isLive
     ? 'rgba(16, 185, 129, 0.4)'
     : isWeb
     ? 'rgba(56, 189, 248, 0.4)'
-    : 'rgba(34, 211, 238, 0.35)';
+    : 'rgba(34, 197, 94, 0.35)';
 
   return (
     <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, styles.wrapper]}>

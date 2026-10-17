@@ -75,7 +75,7 @@ export function SourceSheet({
   const isWeb = sourceType === 'web' || sourceType === 'search';
   const isLive = sourceType === 'live_api';
 
-  const sourceBadgeColor = isLive ? '#10B981' : isWeb ? '#38BDF8' : Colors.primaryCyan;
+  const sourceBadgeColor = isLive ? '#10B981' : isWeb ? '#4ADE80' : Colors.primaryCyan;
   const sourceBadgeLabel = isLive
     ? '🕐 Current Data'
     : isWeb
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   tabPillActive: {
-    backgroundColor: 'rgba(34, 211, 238, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     borderColor: Colors.primaryCyan,
   },
   tabPillText: {
@@ -456,9 +456,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
-    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.4)',
+    borderColor: 'rgba(34, 197, 94, 0.4)',
   },
   citationIndexText: {
     fontFamily: Fonts.mono,
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   urlText: {
     fontFamily: Fonts.mono,
     fontSize: 11,
-    color: '#38BDF8',
+    color: '#4ADE80',
     textDecorationLine: 'underline',
     flex: 1,
   },
