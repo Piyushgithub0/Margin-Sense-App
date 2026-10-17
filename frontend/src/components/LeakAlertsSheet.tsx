@@ -1,4 +1,4 @@
-﻿import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, Modal, Pressable, Animated, Dimensions,
   ScrollView, TouchableWithoutFeedback, Linking,
@@ -175,7 +175,7 @@ export function LeakAlertsSheet({ visible, onClose, alerts, onApprove, onReject 
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.72)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.72)' },
   sheetContainer: { backgroundColor: '#0B1508', borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderColor: 'rgba(249,115,22,0.22)', height: SHEET_HEIGHT, paddingBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: -6 }, shadowOpacity: 0.5, shadowRadius: 20, elevation: 24 },
   handleContainer: { alignItems: 'center', paddingVertical: 8 },
   grabHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.18)' },

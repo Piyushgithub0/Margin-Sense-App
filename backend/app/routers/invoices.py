@@ -10,6 +10,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Background
 from app.config import settings
 from app.pipelines.ocr_pipeline import run_ocr
 from app.services.invoice_structurer import (
+    is_valid_invoice,
     extract_regex_fields,
     audit_profit_leaks,
     draft_supplier_whatsapp_message
@@ -88,32 +89,34 @@ async def process_invoice_endpoint(
         logger.warning(f"[InvoiceEngine] OCR error: {err}")
         raw_ocr_text = ""
 
-    # If OCR output is sparse or empty (e.g. simulated camera snap), provide sensible fallback
-    if not raw_ocr_text or len(raw_ocr_text.strip()) < 10:
-        raw_ocr_text = (
-            f"INVOICE / BILL\n"
-            f"Metro Foods Pvt Ltd\n"
-            f"GSTIN: 27AABCM9842F1Z8\n"
-            f"Invoice No: INV-2026-9041\n"
-            f"Date: 17/10/2026\n"
-            f"Amul Butter 500g 20 pcs 265 5300\n"
-            f"Amul Taaza Milk 1L 50 pcs 58 2900\n"
-            f"Subtotal: 8200.00\n"
-            f"CGST: 410.00\n"
-            f"SGST: 410.00\n"
-            f"Total Amount: 9020.00\n"
-        )
+    # Step 2: Validate if the scanned image actually contains an invoice/purchase bill
+    is_invoice, rejection_reason, confidence = is_valid_invoice(raw_ocr_text)
 
-    # Step 2: Structure fields
+    if not is_invoice:
+        elapsed = round(time.monotonic() - t_start, 2)
+        logger.info(
+            f"[InvoiceEngine] ✕ Image rejected (not an invoice): {rejection_reason} "
+            f"(confidence: {confidence}, elapsed: {elapsed}s)"
+        )
+        return {
+            "success": False,
+            "is_invoice": False,
+            "rejection_reason": rejection_reason,
+            "confidence_score": confidence,
+            "raw_ocr_text": raw_ocr_text,
+            "elapsed_seconds": elapsed
+        }
+
+    # Step 3: Structure fields from real OCR text
     structured = extract_regex_fields(raw_ocr_text)
 
-    # Step 3: Run autonomous profit leak detectors
+    # Step 4: Run autonomous profit leak detectors
     audit = audit_profit_leaks(structured)
 
-    # Step 4: Draft WhatsApp dispute message
+    # Step 5: Draft WhatsApp dispute message
     whatsapp_draft = draft_supplier_whatsapp_message(structured, audit)
 
-    # Step 5: Save to SQLite & Index for RAG
+    # Step 6: Save to SQLite & Index for RAG
     file_size_mb = f"{max(0.1, round(len(file_bytes) / (1024 * 1024), 1))} MB"
     doc_metadata = {
         "is_invoice": True,
@@ -164,6 +167,7 @@ async def process_invoice_endpoint(
 
     return {
         "success": True,
+        "is_invoice": True,
         "doc_id": doc_id,
         "file_name": safe_name,
         "size": file_size_mb,

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Alert } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import * as Linking from 'expo-linking';
@@ -556,12 +557,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       setUploadProgress(90);
 
-      if (invoiceRes) {
+      if (
+        invoiceRes &&
+        invoiceRes.success &&
+        invoiceRes.is_invoice &&
+        invoiceRes.structured_invoice &&
+        invoiceRes.audit
+      ) {
         const newDoc: DocumentItem = {
-          id: invoiceRes.doc_id,
-          name: invoiceRes.file_name,
+          id: invoiceRes.doc_id || `doc-${Date.now()}`,
+          name: invoiceRes.file_name || fileName,
           uri: asset.uri,
-          size: invoiceRes.size,
+          size: invoiceRes.size || '1.0 MB',
           pages: 1,
           status: 'INDEXED',
           uploadedAt: 'Just now',
@@ -574,8 +581,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSelectedDocumentIds([newDoc.id]);
 
         // Auto-populate leak alerts feed from real audit results
-        if (invoiceRes.audit && invoiceRes.audit.leak_count > 0) {
-          const newAlerts = invoiceRes.audit.leaks.map((leak) => ({
+        const audit = invoiceRes.audit;
+        if (audit && audit.leak_count > 0) {
+          const newAlerts = audit.leaks.map((leak) => ({
             id: `${newDoc.id}-${leak.type}-${leak.title}`,
             documentId: newDoc.id,
             documentName: newDoc.name,
@@ -587,7 +595,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             rootCause: leak.root_cause,
             whatsappDraft: invoiceRes.whatsapp_draft,
             status: 'PENDING' as const,
-            detectedAt: invoiceRes.audit.audited_at,
+            detectedAt: audit.audited_at,
           }));
           setLeakAlerts((prev) => [...newAlerts, ...prev.filter((a) => a.documentId !== newDoc.id)]);
           // Show alerts feed automatically
@@ -598,10 +606,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setActiveStructuredInvoice(invoiceRes.structured_invoice);
         setActiveInvoiceAudit(invoiceRes.audit);
         setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
-        setActiveInvoiceFileName(invoiceRes.file_name);
+        setActiveInvoiceFileName(invoiceRes.file_name || fileName);
         setIsInvoiceAuditModalOpen(true);
+      } else if (invoiceRes && invoiceRes.is_invoice === false) {
+        // Explicitly rejected as NOT an invoice
+        Alert.alert(
+          'Not an Invoice',
+          invoiceRes.rejection_reason ||
+            'The photo taken does not appear to be an invoice or purchase bill. Please capture a clear photo of a supplier bill, cash memo, or invoice.',
+          [{ text: 'OK' }]
+        );
       } else {
-        await uploadAssetList([{ uri: asset.uri, name: fileName, mimeType: asset.mimeType }]);
+        Alert.alert(
+          'Scan Failed',
+          'Could not analyze the photo. Please check your network connection and try again.',
+          [{ text: 'OK' }]
+        );
       }
 
       setUploadProgress(100);
@@ -628,12 +648,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const invoiceRes = await processInvoiceWithOCR(uri, fileName);
       setUploadProgress(90);
 
-      if (invoiceRes) {
+      if (
+        invoiceRes &&
+        invoiceRes.success &&
+        invoiceRes.is_invoice &&
+        invoiceRes.structured_invoice &&
+        invoiceRes.audit
+      ) {
         const newDoc: DocumentItem = {
-          id: invoiceRes.doc_id,
-          name: invoiceRes.file_name,
+          id: invoiceRes.doc_id || `doc-${Date.now()}`,
+          name: invoiceRes.file_name || fileName,
           uri: uri,
-          size: invoiceRes.size,
+          size: invoiceRes.size || '1.0 MB',
           pages: 1,
           status: 'INDEXED',
           uploadedAt: 'Just now',
@@ -646,8 +672,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSelectedDocumentIds([newDoc.id]);
 
         // Auto-populate leak alerts feed
-        if (invoiceRes.audit && invoiceRes.audit.leak_count > 0) {
-          const newAlerts = invoiceRes.audit.leaks.map((leak) => ({
+        const audit = invoiceRes.audit;
+        if (audit && audit.leak_count > 0) {
+          const newAlerts = audit.leaks.map((leak) => ({
             id: `${newDoc.id}-${leak.type}-${leak.title}`,
             documentId: newDoc.id,
             documentName: newDoc.name,
@@ -659,7 +686,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             rootCause: leak.root_cause,
             whatsappDraft: invoiceRes.whatsapp_draft,
             status: 'PENDING' as const,
-            detectedAt: invoiceRes.audit.audited_at,
+            detectedAt: audit.audited_at,
           }));
           setLeakAlerts((prev) => [...newAlerts, ...prev.filter((a) => a.documentId !== newDoc.id)]);
         }
@@ -667,8 +694,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setActiveStructuredInvoice(invoiceRes.structured_invoice);
         setActiveInvoiceAudit(invoiceRes.audit);
         setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
-        setActiveInvoiceFileName(invoiceRes.file_name);
+        setActiveInvoiceFileName(invoiceRes.file_name || fileName);
         setIsInvoiceAuditModalOpen(true);
+      } else if (invoiceRes && invoiceRes.is_invoice === false) {
+        Alert.alert(
+          'Not an Invoice',
+          invoiceRes.rejection_reason || 'The imported file does not contain a recognizable purchase invoice.',
+          [{ text: 'OK' }]
+        );
       } else {
         await uploadAssetList([{ uri, name: fileName }]);
       }
@@ -703,7 +736,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const invoiceRes = await processInvoiceWithOCR(doc.uri, doc.name);
         setUploadProgress(95);
-        if (invoiceRes) {
+        if (
+          invoiceRes &&
+          invoiceRes.success &&
+          invoiceRes.is_invoice &&
+          invoiceRes.structured_invoice &&
+          invoiceRes.audit
+        ) {
           // Patch document with real audit data
           const updatedDoc: DocumentItem = {
             ...doc,
@@ -714,8 +753,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setDocuments((prev) => prev.map((d) => d.id === doc.id ? updatedDoc : d));
 
           // Populate leak alerts
-          if (invoiceRes.audit && invoiceRes.audit.leak_count > 0) {
-            const newAlerts = invoiceRes.audit.leaks.map((leak) => ({
+          const audit = invoiceRes.audit;
+          if (audit && audit.leak_count > 0) {
+            const newAlerts = audit.leaks.map((leak) => ({
               id: `${doc.id}-${leak.type}-${leak.title}`,
               documentId: doc.id,
               documentName: doc.name,
@@ -727,7 +767,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               rootCause: leak.root_cause,
               whatsappDraft: invoiceRes.whatsapp_draft,
               status: 'PENDING' as const,
-              detectedAt: invoiceRes.audit.audited_at,
+              detectedAt: audit.audited_at,
             }));
             setLeakAlerts((prev) => [...newAlerts, ...prev.filter((a) => a.documentId !== doc.id)]);
           }
@@ -737,6 +777,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
           setActiveInvoiceFileName(invoiceRes.file_name || doc.name);
           setIsInvoiceAuditModalOpen(true);
+        } else if (invoiceRes && invoiceRes.is_invoice === false) {
+          Alert.alert(
+            'Not an Invoice',
+            invoiceRes.rejection_reason || 'This document does not contain valid invoice or billing data to audit.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert(
+            'Audit Error',
+            'Could not extract invoice details from this document.',
+            [{ text: 'OK' }]
+          );
         }
       } catch (err) {
         console.error('[openInvoiceAudit] Backend OCR failed:', err);

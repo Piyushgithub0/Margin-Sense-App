@@ -466,14 +466,17 @@ export function getVoiceoverAudioUrl(text: string, voice: string = 'af_heart'): 
 
 export interface ProcessInvoiceResponse {
   success: boolean;
-  doc_id: string;
-  file_name: string;
-  size: string;
-  elapsed_seconds: number;
-  raw_ocr_text: string;
-  structured_invoice: StructuredInvoice;
-  audit: InvoiceAuditResult;
-  whatsapp_draft: string;
+  is_invoice?: boolean;
+  rejection_reason?: string;
+  confidence_score?: number;
+  doc_id?: string;
+  file_name?: string;
+  size?: string;
+  elapsed_seconds?: number;
+  raw_ocr_text?: string;
+  structured_invoice?: StructuredInvoice;
+  audit?: InvoiceAuditResult;
+  whatsapp_draft?: string;
 }
 
 /**
@@ -527,7 +530,10 @@ export async function processInvoiceWithOCR(
     }
 
     const data: ProcessInvoiceResponse = await res.json();
-    console.log(`[MarginSense OCR] Processed successfully in ${data.elapsed_seconds}s! Supplier: ${data.structured_invoice.supplier_name}`);
+    console.log(
+      `[MarginSense OCR] Result: success=${data.success}, is_invoice=${data.is_invoice}, ` +
+      `reason=${data.rejection_reason || 'N/A'}, supplier=${data.structured_invoice?.supplier_name || 'N/A'}`
+    );
     return data;
   } catch (err) {
     console.warn('[MarginSense OCR] Error processing invoice:', err);

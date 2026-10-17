@@ -1,4 +1,4 @@
-﻿import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, Modal, Pressable, Animated,
   Dimensions, ScrollView, TouchableWithoutFeedback,
@@ -158,7 +158,7 @@ export function DashboardSheet({ visible, onClose, kpi, invoicesAudited, onOpenA
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.72)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.72)' },
   sheetContainer: {
     backgroundColor: '#080C08', borderTopLeftRadius: 24, borderTopRightRadius: 24,
     borderWidth: 1, borderColor: 'rgba(34,197,94,0.25)', height: SHEET_HEIGHT, paddingBottom: 24,
