@@ -10,6 +10,8 @@ import {
   ChatSession,
   StructuredInvoice,
   InvoiceAuditResult,
+  LeakAlert,
+  DashboardKPI,
 } from '@/types';
 import { INITIAL_DOCUMENTS, INITIAL_MESSAGES, MOCK_KNOWLEDGE_BASE } from '@/data/mockData';
 import {
@@ -71,6 +73,18 @@ interface AppContextType {
   activeWhatsappDraft?: string;
   setActiveWhatsappDraft: (draft?: string) => void;
   activeInvoiceFileName?: string;
+
+  // Leak Alerts Feed
+  leakAlerts: LeakAlert[];
+  isLeakAlertsSheetOpen: boolean;
+  setIsLeakAlertsSheetOpen: (open: boolean) => void;
+  approveLeakAlert: (alertId: string) => void;
+  rejectLeakAlert: (alertId: string) => void;
+
+  // Dashboard KPI
+  dashboardKPI: DashboardKPI;
+  isDashboardSheetOpen: boolean;
+  setIsDashboardSheetOpen: (open: boolean) => void;
 
   // Cross-Document Correlation & Relatedness
   relatednessResult: DocumentRelatednessResult | null;
@@ -148,6 +162,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeInvoiceAudit, setActiveInvoiceAudit] = useState<InvoiceAuditResult | null>(null);
   const [activeWhatsappDraft, setActiveWhatsappDraft] = useState<string | undefined>(undefined);
   const [activeInvoiceFileName, setActiveInvoiceFileName] = useState<string | undefined>(undefined);
+
+  // Leak Alerts Feed
+  const [leakAlerts, setLeakAlerts] = useState<LeakAlert[]>([]);
+  const [isLeakAlertsSheetOpen, setIsLeakAlertsSheetOpen] = useState(false);
+
+  // Dashboard
+  const [isDashboardSheetOpen, setIsDashboardSheetOpen] = useState(false);
+  const [amountRecovered, setAmountRecovered] = useState(0);
 
   // Computed multi-selected documents
   const selectedDocuments = documents.filter((d) => selectedDocumentIds.includes(d.id));
@@ -294,6 +316,71 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
   };
+
+  // Helper: build leak alerts from document audit results
+  const buildLeakAlertsFromDocs = (docs: DocumentItem[]): LeakAlert[] => {
+    const alerts: LeakAlert[] = [];
+    for (const doc of docs) {
+      if (!doc.auditResult || doc.auditResult.leak_count === 0) continue;
+      for (const leak of doc.auditResult.leaks) {
+        const existing = leakAlerts.find((a) => a.id === `${doc.id}-${leak.type}-${leak.title}`);
+        alerts.push({
+          id: `${doc.id}-${leak.type}-${leak.title}`,
+          documentId: doc.id,
+          documentName: doc.name,
+          supplierName: doc.structuredInvoice?.supplier_name || doc.name,
+          invoiceNumber: doc.structuredInvoice?.invoice_number || undefined,
+          leakType: leak.type,
+          severity: leak.severity,
+          leakAmount: leak.leak_amount,
+          rootCause: leak.root_cause,
+          whatsappDraft: doc.whatsappDraft,
+          status: existing?.status || 'PENDING',
+          detectedAt: doc.auditResult.audited_at,
+        });
+      }
+    }
+    return alerts;
+  };
+
+  const approveLeakAlert = (alertId: string) => {
+    setLeakAlerts((prev) => prev.map((a) => a.id === alertId ? { ...a, status: 'APPROVED' } : a));
+    setAmountRecovered((prev) => {
+      const alert = leakAlerts.find((a) => a.id === alertId);
+      return prev + (alert?.leakAmount || 0);
+    });
+  };
+
+  const rejectLeakAlert = (alertId: string) => {
+    setLeakAlerts((prev) => prev.map((a) => a.id === alertId ? { ...a, status: 'REJECTED' } : a));
+  };
+
+  // Computed Dashboard KPI from real documents
+  const dashboardKPI: DashboardKPI = React.useMemo(() => {
+    const audited = documents.filter((d) => d.auditResult);
+    const totalLeakAmount = audited.reduce((sum, d) => sum + (d.auditResult?.total_leak_amount || 0), 0);
+    const totalLeaksDetected = audited.reduce((sum, d) => sum + (d.auditResult?.leak_count || 0), 0);
+    const pendingAlerts = leakAlerts.filter((a) => a.status === 'PENDING').length;
+
+    // Top leaking supplier
+    const supplierLeaks: Record<string, number> = {};
+    for (const doc of audited) {
+      if (doc.auditResult && doc.auditResult.total_leak_amount > 0) {
+        const name = doc.structuredInvoice?.supplier_name || doc.name;
+        supplierLeaks[name] = (supplierLeaks[name] || 0) + doc.auditResult.total_leak_amount;
+      }
+    }
+    const topLeakingSupplier = Object.keys(supplierLeaks).sort((a, b) => supplierLeaks[b] - supplierLeaks[a])[0];
+
+    return {
+      totalLeaksDetected,
+      totalLeakAmount,
+      amountRecovered,
+      pendingAlerts,
+      invoicesAudited: audited.length,
+      topLeakingSupplier,
+    };
+  }, [documents, leakAlerts, amountRecovered]);
 
   const analyzeRelatedness = async (docIds?: string[]): Promise<DocumentRelatednessResult | null> => {
     setIsAnalyzingRelatedness(true);
@@ -486,6 +573,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setDocuments((prev) => [newDoc, ...prev]);
         setSelectedDocumentIds([newDoc.id]);
 
+        // Auto-populate leak alerts feed from real audit results
+        if (invoiceRes.audit && invoiceRes.audit.leak_count > 0) {
+          const newAlerts = invoiceRes.audit.leaks.map((leak) => ({
+            id: `${newDoc.id}-${leak.type}-${leak.title}`,
+            documentId: newDoc.id,
+            documentName: newDoc.name,
+            supplierName: invoiceRes.structured_invoice?.supplier_name || newDoc.name,
+            invoiceNumber: invoiceRes.structured_invoice?.invoice_number || undefined,
+            leakType: leak.type,
+            severity: leak.severity,
+            leakAmount: leak.leak_amount,
+            rootCause: leak.root_cause,
+            whatsappDraft: invoiceRes.whatsapp_draft,
+            status: 'PENDING' as const,
+            detectedAt: invoiceRes.audit.audited_at,
+          }));
+          setLeakAlerts((prev) => [...newAlerts, ...prev.filter((a) => a.documentId !== newDoc.id)]);
+          // Show alerts feed automatically
+          setIsLeakAlertsSheetOpen(true);
+        }
+
         // Launch Structured Bill & Autonomous Leak Audit Modal immediately
         setActiveStructuredInvoice(invoiceRes.structured_invoice);
         setActiveInvoiceAudit(invoiceRes.audit);
@@ -537,6 +645,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setDocuments((prev) => [newDoc, ...prev]);
         setSelectedDocumentIds([newDoc.id]);
 
+        // Auto-populate leak alerts feed
+        if (invoiceRes.audit && invoiceRes.audit.leak_count > 0) {
+          const newAlerts = invoiceRes.audit.leaks.map((leak) => ({
+            id: `${newDoc.id}-${leak.type}-${leak.title}`,
+            documentId: newDoc.id,
+            documentName: newDoc.name,
+            supplierName: invoiceRes.structured_invoice?.supplier_name || newDoc.name,
+            invoiceNumber: invoiceRes.structured_invoice?.invoice_number || undefined,
+            leakType: leak.type,
+            severity: leak.severity,
+            leakAmount: leak.leak_amount,
+            rootCause: leak.root_cause,
+            whatsappDraft: invoiceRes.whatsapp_draft,
+            status: 'PENDING' as const,
+            detectedAt: invoiceRes.audit.audited_at,
+          }));
+          setLeakAlerts((prev) => [...newAlerts, ...prev.filter((a) => a.documentId !== newDoc.id)]);
+        }
+
         setActiveStructuredInvoice(invoiceRes.structured_invoice);
         setActiveInvoiceAudit(invoiceRes.audit);
         setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
@@ -560,40 +687,67 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // 5. Open Structured Audit Modal for any document
-  const openInvoiceAudit = (doc: DocumentItem) => {
+  const openInvoiceAudit = async (doc: DocumentItem) => {
     if (doc.structuredInvoice) {
+      // Already audited — show existing data
       setActiveStructuredInvoice(doc.structuredInvoice);
       setActiveInvoiceAudit(doc.auditResult || null);
       setActiveWhatsappDraft(doc.whatsappDraft);
       setActiveInvoiceFileName(doc.name);
       setIsInvoiceAuditModalOpen(true);
-    } else {
-      const fallbackInv: StructuredInvoice = {
-        supplier_name: doc.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ').toUpperCase(),
-        invoice_number: `INV-${doc.id.slice(-6)}`,
-        invoice_date: 'Today',
-        line_items: [
-          { description: 'General Audited Retail Goods', quantity: 1, unit: 'lot', unit_rate: 6500, tax_rate: 5, amount: 6500 },
-        ],
-        subtotal: 6500,
-        cgst: 162.5,
-        sgst: 162.5,
-        total_amount: 6825,
-      };
-      const fallbackAudit: InvoiceAuditResult = {
-        status: 'VERIFIED_CLEAN',
-        total_leak_amount: 0,
-        leak_count: 0,
-        confidence_score: 92,
-        audited_at: new Date().toISOString(),
-        leaks: [],
-      };
-      setActiveStructuredInvoice(fallbackInv);
-      setActiveInvoiceAudit(fallbackAudit);
-      setActiveInvoiceFileName(doc.name);
-      setIsInvoiceAuditModalOpen(true);
+    } else if (doc.uri) {
+      // Not yet audited — run dynamic backend OCR pipeline on the actual file
+      setIsUploading(true);
+      setUploadingDocName(doc.name);
+      setUploadProgress(30);
+      try {
+        const invoiceRes = await processInvoiceWithOCR(doc.uri, doc.name);
+        setUploadProgress(95);
+        if (invoiceRes) {
+          // Patch document with real audit data
+          const updatedDoc: DocumentItem = {
+            ...doc,
+            structuredInvoice: invoiceRes.structured_invoice,
+            auditResult: invoiceRes.audit,
+            whatsappDraft: invoiceRes.whatsapp_draft,
+          };
+          setDocuments((prev) => prev.map((d) => d.id === doc.id ? updatedDoc : d));
+
+          // Populate leak alerts
+          if (invoiceRes.audit && invoiceRes.audit.leak_count > 0) {
+            const newAlerts = invoiceRes.audit.leaks.map((leak) => ({
+              id: `${doc.id}-${leak.type}-${leak.title}`,
+              documentId: doc.id,
+              documentName: doc.name,
+              supplierName: invoiceRes.structured_invoice?.supplier_name || doc.name,
+              invoiceNumber: invoiceRes.structured_invoice?.invoice_number || undefined,
+              leakType: leak.type,
+              severity: leak.severity,
+              leakAmount: leak.leak_amount,
+              rootCause: leak.root_cause,
+              whatsappDraft: invoiceRes.whatsapp_draft,
+              status: 'PENDING' as const,
+              detectedAt: invoiceRes.audit.audited_at,
+            }));
+            setLeakAlerts((prev) => [...newAlerts, ...prev.filter((a) => a.documentId !== doc.id)]);
+          }
+
+          setActiveStructuredInvoice(invoiceRes.structured_invoice);
+          setActiveInvoiceAudit(invoiceRes.audit);
+          setActiveWhatsappDraft(invoiceRes.whatsapp_draft);
+          setActiveInvoiceFileName(invoiceRes.file_name || doc.name);
+          setIsInvoiceAuditModalOpen(true);
+        }
+      } catch (err) {
+        console.error('[openInvoiceAudit] Backend OCR failed:', err);
+      } finally {
+        setUploadProgress(100);
+        setTimeout(() => { setIsUploading(false); setUploadProgress(0); setUploadingDocName(null); }, 500);
+      }
     }
   };
+
+
 
   // Helper to persist current session's messages and metadata locally
   const persistMessagesLocally = async (
@@ -997,6 +1151,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         activeWhatsappDraft,
         setActiveWhatsappDraft,
         activeInvoiceFileName,
+        leakAlerts,
+        isLeakAlertsSheetOpen,
+        setIsLeakAlertsSheetOpen,
+        approveLeakAlert,
+        rejectLeakAlert,
+        dashboardKPI,
+        isDashboardSheetOpen,
+        setIsDashboardSheetOpen,
         relatednessResult,
         isAnalyzingRelatedness,
         isRelatednessSheetOpen,

@@ -33,6 +33,8 @@ import { DocumentsSheet } from '@/components/DocumentsSheet';
 import { ChatsSheet } from '@/components/ChatsSheet';
 import { RelatednessSheet } from '@/components/RelatednessSheet';
 import { InvoiceAuditModal } from '@/components/InvoiceAuditModal';
+import { LeakAlertsSheet } from '@/components/LeakAlertsSheet';
+import { DashboardSheet } from '@/components/DashboardSheet';
 import { CitationSource } from '@/types';
 
 export default function MainAppScreen() {
@@ -89,6 +91,14 @@ export default function MainAppScreen() {
     activeInvoiceAudit,
     activeWhatsappDraft,
     activeInvoiceFileName,
+    leakAlerts,
+    isLeakAlertsSheetOpen,
+    setIsLeakAlertsSheetOpen,
+    approveLeakAlert,
+    rejectLeakAlert,
+    dashboardKPI,
+    isDashboardSheetOpen,
+    setIsDashboardSheetOpen,
   } = useApp();
 
   // Scroll to bottom when messages update or generating
@@ -139,6 +149,41 @@ export default function MainAppScreen() {
         </View>
 
         <View style={styles.headerRight}>
+          {/* Leak Alerts Bell Button */}
+          <IconButton
+            onPress={() => setIsLeakAlertsSheetOpen(true)}
+            active={isLeakAlertsSheetOpen}
+            badgeCount={leakAlerts.filter((a) => a.status === 'PENDING').length || undefined}
+            icon={
+              <Ionicons
+                name="notifications-outline"
+                size={17}
+                color={
+                  isLeakAlertsSheetOpen
+                    ? '#F97316'
+                    : leakAlerts.some((a) => a.status === 'PENDING')
+                    ? '#F97316'
+                    : Colors.textPrimary
+                }
+              />
+            }
+            accessibilityLabel="Open leak alerts feed"
+          />
+
+          {/* Dashboard Button */}
+          <IconButton
+            onPress={() => setIsDashboardSheetOpen(true)}
+            active={isDashboardSheetOpen}
+            icon={
+              <Ionicons
+                name="speedometer-outline"
+                size={17}
+                color={isDashboardSheetOpen ? Colors.primary : Colors.textPrimary}
+              />
+            }
+            accessibilityLabel="Open dashboard KPI"
+          />
+
           {/* Local Chat History Drawer Button */}
           <IconButton
             onPress={() => setIsChatHistorySheetOpen(true)}
@@ -546,6 +591,25 @@ export default function MainAppScreen() {
         onStartAuditChat={(inv) => {
           sendMessage(`Audit summary for ${inv.supplier_name}: What are the exact leaks and root causes identified in bill #${inv.invoice_number}?`);
         }}
+      />
+
+      {/* Leak Alerts Feed Sheet */}
+      <LeakAlertsSheet
+        visible={isLeakAlertsSheetOpen}
+        onClose={() => setIsLeakAlertsSheetOpen(false)}
+        alerts={leakAlerts}
+        onApprove={approveLeakAlert}
+        onReject={rejectLeakAlert}
+      />
+
+      {/* Dashboard KPI Sheet */}
+      <DashboardSheet
+        visible={isDashboardSheetOpen}
+        onClose={() => setIsDashboardSheetOpen(false)}
+        kpi={dashboardKPI}
+        invoicesAudited={documents.filter((d) => d.auditResult).length}
+        onOpenAlerts={() => setIsLeakAlertsSheetOpen(true)}
+        onOpenVault={() => setIsDocumentsSheetOpen(true)}
       />
     </SafeAreaView>
   );

@@ -44,6 +44,32 @@ export interface StructuredInvoice {
   total_amount: number;
 }
 
+export type LeakAlertStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'RECOVERED';
+
+export interface LeakAlert {
+  id: string;
+  documentId: string;
+  documentName: string;
+  supplierName: string;
+  invoiceNumber?: string;
+  leakType: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  leakAmount: number;
+  rootCause: string;
+  whatsappDraft?: string;
+  status: LeakAlertStatus;
+  detectedAt: string;
+}
+
+export interface DashboardKPI {
+  totalLeaksDetected: number;
+  totalLeakAmount: number;
+  amountRecovered: number;
+  pendingAlerts: number;
+  invoicesAudited: number;
+  topLeakingSupplier?: string;
+}
+
 export interface DocumentItem {
   id: string;
   name: string;
